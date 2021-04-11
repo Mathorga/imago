@@ -1,2 +1,2 @@
-# ganymede
+# libspyke
 Spiking neural network implementation
