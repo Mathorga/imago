@@ -1,2 +1,2 @@
-# libspyke
+# libplanck
 Spiking neural network implementation
