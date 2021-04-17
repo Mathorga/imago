@@ -1,2 +1,2 @@
-# libplanck
+# libimago
 Spiking neural network implementation
