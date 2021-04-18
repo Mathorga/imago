@@ -1,3 +1,14 @@
+/*
+*****************************************************************
+imago.h
+
+Copyright (C) 2021 Luka Micheletti
+*****************************************************************
+*/
+
+#ifndef __IMAGO__
+#define __IMAGO__
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -25,6 +36,9 @@ struct Corticolumn {
     // Propagation times for synapses in the corticolumn.
     uint8_t* synapsePropagationTimes;
 
+    // Propagation progresses for synapses in the corticolumn (goes from 0 to propagation time).
+    uint8_t* synapsePropagationProgresses;
+
     // Actual values of synapses in the corticolumn.
     int8_t* synapseValues;
 
@@ -42,7 +56,7 @@ struct Corticolumn {
 void initColumn(struct Corticolumn* column, uint32_t neuronsNum);
 
 // Propagates synapse spikes to post-synaptic neurons.
-void propagate();
+void propagate(uint8_t* propagationTimes, uint8_t* propagationProgresses);
 
 // Increments neuron values with spikes from input synapses.
 void increment();
@@ -55,3 +69,5 @@ void copyToDevice();
 
 // Performs a full cycle over the network corticolumn.
 void tick();
+
+#endif
