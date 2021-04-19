@@ -12,6 +12,17 @@ Copyright (C) 2021 Luka Micheletti
 #include <stdint.h>
 #include <stdlib.h>
 
+#define SPIKE_DELIVERED -1
+#define SPIKE_IDLE -2
+
+#define DECAY_RATE 1
+
+struct Neuron {
+    uint16_t index;
+    uint8_t threshold;
+    
+};
+
 struct Corticolumn {
     // Index of the corticolumn.
     uint16_t index;
@@ -26,8 +37,14 @@ struct Corticolumn {
     // Neuron indexes, used to identify synapses' targets.
     uint32_t* neuronIndexes;
 
+    // Neuron input synapses (synapse indexes).
+    uint32_t** neuronInputs;
+
+    // Sizes of neuron input synapses.
+    uint32_t* neuronInputsSizes;
+
     // Neuron output synapses (synapse indexes).
-    uint32_t* neuronOutputs;
+    uint32_t** neuronOutputs;
 
     // Amount of neuron in the corticolumn.
     uint32_t neuronsNum;
@@ -36,17 +53,14 @@ struct Corticolumn {
     // Propagation times for synapses in the corticolumn.
     uint8_t* synapsePropagationTimes;
 
-    // Propagation progresses for synapses in the corticolumn (goes from 0 to propagation time).
-    uint8_t* synapsePropagationProgresses;
+    // Progress of spikes along synapses.
+    uint8_t* spikeProgresses;
 
     // Actual values of synapses in the corticolumn.
     int8_t* synapseValues;
 
     // Synapse indexes, used to identify neurons' outputs.
     uint32_t* synapseIndexes;
-
-    // Synapse targets (neuron indexes).
-    uint32_t* synapseTargets;
 
     // Amount of synapses in the corticolumn.
     uint32_t synapsesNum;
@@ -56,10 +70,19 @@ struct Corticolumn {
 void initColumn(struct Corticolumn* column, uint32_t neuronsNum);
 
 // Propagates synapse spikes to post-synaptic neurons.
-void propagate(uint8_t* propagationTimes, uint8_t* propagationProgresses);
+void propagate(uint8_t* propagationTimes,
+               uint32_t* indexes,
+               uint8_t* progresses,
+               uint32_t synapsesNum);
 
-// Increments neuron values with spikes from input synapses.
-void increment();
+// Increments neuron values with spikes from input synapses and decrements them by decay.
+void increment(int8_t* neuronValues,
+               uint32_t** neuronInputs,
+               uint32_t* synapseIndexes,
+               int8_t* synapseValues,
+               uint8_t* spikeProgresses,
+               uint32_t neuronsNum,
+               uint32_t synapsesNum);
 
 // Triggers neuron firing if values exceeds threshold.
 void fire();
@@ -68,6 +91,6 @@ void fire();
 void copyToDevice();
 
 // Performs a full cycle over the network corticolumn.
-void tick();
+void tick(struct Corticolumn* column);
 
 #endif
