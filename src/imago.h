@@ -18,52 +18,44 @@ Copyright (C) 2021 Luka Micheletti
 #define DECAY_RATE 1
 
 struct Neuron {
-    uint16_t index;
+    // Threshold value. The neuron fires if value goes above it.
     uint8_t threshold;
-    
+
+    // Actual value of the neuron. If it goes above threshold, then the neuron fires.
+    uint8_t value;
 };
 
+struct Synapse {
+    // Propagation time of spikes along the synapse.
+    uint8_t propagationTime;
+
+    // Progress of the current spike along the synapse.
+    int16_t progress;
+
+    // Value of the synapse. This is what influences the output neuron.
+    int8_t value;
+
+    // Index of the input neuron.
+    uint32_t inputNeuron;
+
+    // Index of the output neuron.
+    uint32_t outputNeuron;
+};
+
+// Defines the building block of the brain intelligence: the minimum sensory-motor learning model.
 struct Corticolumn {
-    // Index of the corticolumn.
-    uint16_t index;
-
-    // ---------------Neurons data---------------
-    // Threshold values for neurons in the corticolumn.
-    uint8_t* neuronThresholds;
-
-    // Actual neuron potential values in the current corticolumn.
-    int8_t* neuronValues;
-
-    // Neuron indexes, used to identify synapses' targets.
-    uint32_t* neuronIndexes;
-
-    // Neuron input synapses (synapse indexes).
-    uint32_t** neuronInputs;
-
-    // Sizes of neuron input synapses.
-    uint32_t* neuronInputsSizes;
-
-    // Neuron output synapses (synapse indexes).
-    uint32_t** neuronOutputs;
-
-    // Amount of neuron in the corticolumn.
+    // The number of neuron in the corticolumn (also defines the number of synapses).
     uint32_t neuronsNum;
 
-    // ---------------Synapses data---------------
-    // Propagation times for synapses in the corticolumn.
-    uint8_t* synapsePropagationTimes;
+    // Actual neurons in the corticolumn. The size is defined by neuronsNum.
+    struct Neuron* neurons;
 
-    // Progress of spikes along synapses.
-    uint8_t* spikeProgresses;
+    // Amount of synapses per neuron. The size is defined by neuronsNum.
+    uint32_t* synapsesNums;
 
-    // Actual values of synapses in the corticolumn.
-    int8_t* synapseValues;
-
-    // Synapse indexes, used to identify neurons' outputs.
-    uint32_t* synapseIndexes;
-
-    // Amount of synapses in the corticolumn.
-    uint32_t synapsesNum;
+    // Synapses in the corticolumn. This is an array of synapses (more than one for each neuron). The size is defined by neuronsNum.
+    // Each element is an array of actual synapses. Each size is defined by the corresponding element in synapsesNum.
+    struct Synapses** synapses;
 };
 
 // Initializes the given Corticolumn with default values.

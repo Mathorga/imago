@@ -1,27 +1,6 @@
 #include "imago.h"
 
-void initColumn(struct Corticolumn* column, uint32_t neuronsNum) {
-    column->index = 0;
-
-    // Define the density of the column by defining how many output synapses each neuron has.
-    uint8_t synapsesPerNeuron = 10;
-    uint32_t synapsesNum = neuronsNum * synapsesPerNeuron;
-
-    // Neuron data.
-    column->neuronsNum = neuronsNum;
-    column->neuronIndexes = (uint32_t*) malloc(sizeof(uint32_t) * neuronsNum);
-    column->neuronValues = (int8_t*) malloc(sizeof(int8_t) * neuronsNum);
-    column->neuronThresholds = (uint8_t*) malloc(sizeof(uint8_t) * neuronsNum);
-    column->neuronInputs = (uint32_t**) malloc(sizeof(uint32_t*) * neuronsNum);
-    column->neuronOutputs = (uint32_t**) malloc(sizeof(uint32_t*) * neuronsNum);
-
-    // Synapse data.
-    column->synapsesNum = synapsesNum;
-    column->synapseIndexes = (uint32_t*) malloc(sizeof(uint32_t) * synapsesNum);
-    column->synapseValues = (int8_t*) malloc(sizeof(int8_t) * synapsesNum);
-    column->synapsePropagationTimes = (uint8_t*) malloc(sizeof(uint8_t) * synapsesNum);
-    column->spikeProgresses = (uint8_t*) malloc(sizeof(uint8_t) * synapsesNum);
-}
+void initColumn(struct Corticolumn* column, uint32_t neuronsNum) {}
 
 void propagate(uint8_t* propagationTimes, uint32_t* indexes, uint8_t* progresses, uint32_t synapsesNum) {
     // Loop through synapses.
