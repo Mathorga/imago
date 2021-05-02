@@ -67,13 +67,7 @@ void initColumn(struct Corticolumn* column, uint32_t neuronsNum);
 void propagate(struct Corticolumn* column);
 
 // Increments neuron values with spikes from input synapses and decrements them by decay.
-void increment(int8_t* neuronValues,
-               uint32_t** neuronInputs,
-               uint32_t* synapseIndexes,
-               int8_t* synapseValues,
-               uint8_t* spikeProgresses,
-               uint32_t neuronsNum,
-               uint32_t synapsesNum);
+void increment(struct Corticolumn* column);
 
 // Triggers neuron firing if values exceeds threshold.
 void fire();

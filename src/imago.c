@@ -32,21 +32,15 @@ void propagate(struct Corticolumn* column) {
     }
 }
 
-void increment(int8_t* neuronValues,
-               uint32_t** neuronInputs,
-               uint32_t* synapseIndexes,
-               int8_t* synapseValues,
-               uint8_t* spikeProgresses,
-               uint32_t neuronsNum,
-               uint32_t synapsesNum) {
+void increment(struct Corticolumn* column) {
     // Loop through neurons.
-    for (uint32_t i = 0; i < neuronsNum; i++) {
+    for (uint32_t i = 0; i < column->neuronsNum; i++) {
         // Decrement value by decay rate.
-        neuronValues[i] -= DECAY_RATE;
+        column->neurons[i].value -= DECAY_RATE;
 
         // Make sure it does not go below 0.
-        if (neuronValues[i] < 0) {
-            neuronValues[i] = 0;
+        if (column->neurons[i].value < 0) {
+            column->neurons[i].value = 0;
         }
 
         // for (uint32_t j = 0; j < ) {
