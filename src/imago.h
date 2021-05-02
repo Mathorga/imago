@@ -17,6 +17,9 @@ Copyright (C) 2021 Luka Micheletti
 
 #define DECAY_RATE 1
 
+// Default threshold value is 0.8.
+#define DEFAULT_THRESHOLD 0xCCu
+
 struct Neuron {
     // Threshold value. The neuron fires if value goes above it.
     uint8_t threshold;
@@ -50,22 +53,18 @@ struct Corticolumn {
     // Actual neurons in the corticolumn. The size is defined by neuronsNum.
     struct Neuron* neurons;
 
-    // Amount of synapses per neuron. The size is defined by neuronsNum.
-    uint32_t* synapsesNums;
+    // Amount of synapses in the corticolumn.
+    uint32_t synapsesNum;
 
-    // Synapses in the corticolumn. This is an array of synapses (more than one for each neuron). The size is defined by neuronsNum.
-    // Each element is an array of actual synapses. Each size is defined by the corresponding element in synapsesNum.
-    struct Synapses** synapses;
+    // Synapses in the corticolumn. This size is defined by synapsesNum.
+    struct Synapse* synapses;
 };
 
 // Initializes the given Corticolumn with default values.
 void initColumn(struct Corticolumn* column, uint32_t neuronsNum);
 
 // Propagates synapse spikes to post-synaptic neurons.
-void propagate(uint8_t* propagationTimes,
-               uint32_t* indexes,
-               uint8_t* progresses,
-               uint32_t synapsesNum);
+void propagate(struct Corticolumn* column);
 
 // Increments neuron values with spikes from input synapses and decrements them by decay.
 void increment(int8_t* neuronValues,
