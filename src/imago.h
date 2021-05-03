@@ -11,6 +11,7 @@ Copyright (C) 2021 Luka Micheletti
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define SPIKE_DELIVERED -1
 #define SPIKE_IDLE -2
@@ -19,6 +20,10 @@ Copyright (C) 2021 Luka Micheletti
 
 // Default threshold value is 0.8.
 #define DEFAULT_THRESHOLD 0xCCu
+#define STARTING_VALUE 0x00u
+
+#define DEFAULT_PROPAGATION_TIME 0x22u
+#define STARTING_PROGRESS 0x00u
 
 struct Neuron {
     // Threshold value. The neuron fires if value goes above it.

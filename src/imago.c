@@ -1,6 +1,10 @@
 #include "imago.h"
 
 void initColumn(struct Corticolumn* column, uint32_t neuronsNum) {
+    // Randomize seed.
+    // srand(time(NULL));
+
+    // Define synapses per neuron.
     uint32_t synapsesPerNeuron = 10;
 
     // Allocate neurons.
@@ -12,8 +16,26 @@ void initColumn(struct Corticolumn* column, uint32_t neuronsNum) {
     column->synapses = (struct Synapse*) malloc(column->synapsesNum * sizeof(struct Synapse));
 
     // Initialize neurons with default values.
-    for (uint32_t i = 0; i < neuronsNum; i++) {
+    for (uint32_t i = 0; i < column->neuronsNum; i++) {
         column->neurons[i].threshold = DEFAULT_THRESHOLD;
+        column->neurons[i].value = STARTING_VALUE;
+    }
+
+    // Initialize synapses with random values.
+    for (uint32_t i = 0; i < column->synapsesNum; i++) {
+        // Assign a random input neuron.
+        int32_t randomInput = rand() % column->neuronsNum;
+
+        // Assign a random output neuron, different from the input.
+        int32_t randomOutput;
+        while (randomOutput == randomInput) {
+            randomOutput = rand() % column->neuronsNum;
+        }
+
+        column->synapses[i].inputNeuron = randomInput;
+        column->synapses[i].outputNeuron = randomOutput;
+        column->synapses[i].propagationTime = DEFAULT_PROPAGATION_TIME;
+        column->synapses[i].progress = STARTING_PROGRESS;
     }
 }
 

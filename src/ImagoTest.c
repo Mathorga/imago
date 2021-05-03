@@ -13,6 +13,7 @@ int main() {
     
     for (uint32_t i = 0; i < column.neuronsNum; i++) {
         printf("%X\n", column.neurons[i].threshold);
+        printf("%d - %d\n", column.synapses[i].inputNeuron, column.synapses[i].outputNeuron);
     }
 
     return 0;
