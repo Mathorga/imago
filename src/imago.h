@@ -22,6 +22,7 @@ Copyright (C) 2021 Luka Micheletti
 #define DEFAULT_THRESHOLD 0xCCu
 #define STARTING_VALUE 0x00u
 
+#define DEFAULT_VALUE -0x22
 #define DEFAULT_PROPAGATION_TIME 0x22u
 #define STARTING_PROGRESS 0x00u
 

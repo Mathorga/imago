@@ -28,14 +28,15 @@ void initColumn(struct Corticolumn* column, uint32_t neuronsNum) {
 
         // Assign a random output neuron, different from the input.
         int32_t randomOutput;
-        while (randomOutput == randomInput) {
+        do {
             randomOutput = rand() % column->neuronsNum;
-        }
+        } while (randomOutput == randomInput);
 
         column->synapses[i].inputNeuron = randomInput;
         column->synapses[i].outputNeuron = randomOutput;
         column->synapses[i].propagationTime = DEFAULT_PROPAGATION_TIME;
         column->synapses[i].progress = STARTING_PROGRESS;
+        column->synapses[i].value = DEFAULT_VALUE;
     }
 }
 
@@ -57,16 +58,18 @@ void propagate(struct Corticolumn* column) {
 void increment(struct Corticolumn* column) {
     // Loop through neurons.
     for (uint32_t i = 0; i < column->neuronsNum; i++) {
-        // Decrement value by decay rate.
-        column->neurons[i].value -= DECAY_RATE;
-
-        // Make sure it does not go below 0.
-        if (column->neurons[i].value < 0) {
-            column->neurons[i].value = 0;
+        // Make sure the neuron value does not go below 0.
+        if (column->neurons[i].value > 0) {
+            // Decrement value by decay rate.
+            column->neurons[i].value -= DECAY_RATE;
         }
 
-        // for (uint32_t j = 0; j < ) {
-
-        // }
+        // Loop through synapses.
+        for (uint32_t j = 0; j < column->synapsesNum; j++) {
+            // Only increment neuron value if spike is delivered and synapse outputs to the current neuron.
+            if (column->synapses[i].progress == SPIKE_DELIVERED && column->synapses[i].outputNeuron == i) {
+                column->neurons[i].value += column->synapses[i].value;
+            }
+        }
     }
 }
