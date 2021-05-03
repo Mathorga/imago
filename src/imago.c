@@ -73,3 +73,13 @@ void increment(struct Corticolumn* column) {
         }
     }
 }
+
+void fire(struct Corticolumn* column) {
+
+}
+
+void tick(struct Corticolumn* column) {
+    propagate(column);
+    increment(column);
+    fire(column);
+}

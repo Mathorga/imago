@@ -76,7 +76,7 @@ void propagate(struct Corticolumn* column);
 void increment(struct Corticolumn* column);
 
 // Triggers neuron firing if values exceeds threshold.
-void fire();
+void fire(struct Corticolumn* column);
 
 // Copies a whole corticolumn to device in order to run kernels on it.
 void copyToDevice();

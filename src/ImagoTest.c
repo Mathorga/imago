@@ -12,22 +12,17 @@ int main() {
     struct Corticolumn column;
 
     // Initialize the column.
-    initColumn(&column, 10);
+    initColumn(&column, 1000);
 
     printf("Neurons num %d\n", column.neuronsNum);
     printf("Synapses num %d\n", column.synapsesNum);
-    
-    // for (uint32_t i = 0; i < column.synapsesNum; i++) {
-    //     printf("%d\n", column.synapses[i].progress);
-    // }
 
     int64_t startTime = getTimeMillis();
-    for (uint32_t i = 0; i < 100; i++) {
-        propagate(&column);
-        increment(&column);
+    for (uint32_t i = 0; i < 1000; i++) {
+        tick(&column);
     }
     int64_t endTime = getTimeMillis();
-    printf("Elapsed time: %ld\n", endTime - startTime);
+    printf("Elapsed time: %ld ms\n", endTime - startTime);
 
     printf("%d\n", column.synapses[0].progress);
 
