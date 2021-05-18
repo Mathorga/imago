@@ -17,7 +17,7 @@ Copyright (C) 2021 Luka Micheletti
 // Initializes the given corticolumn with default values.
 void init_column(struct corticolumn* column, uint32_t neurons_num);
 
-// Propagates synapse spikes to post-synaptic neurons.
+// Propagates synapse spikes according to their progress.
 void propagate(struct corticolumn* column);
 
 // Increments neuron values with spikes from input synapses and decrements them by decay.

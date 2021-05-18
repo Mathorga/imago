@@ -16,15 +16,15 @@ RM = rm -rf
 
 all: default
 
-default: create clean defaultExe
+default: create clean test
 
-defaultExe: ImagoTest
+test: imago_test
 
 %.o: $(SRC_DIR)/%.c
 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
 
-ImagoTest: ImagoTest.o \
-		   imago.o
+imago_test: imago_test.o \
+		   standard.o
 	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BIN_DIR)/$@ $(LIBS)
 
 create:

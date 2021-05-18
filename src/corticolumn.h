@@ -70,6 +70,8 @@ struct corticolumn {
     struct synapse* synapses;
 
     uint32_t spikes_num;
+
+    struct spike* spikes;
 };
 
 #endif

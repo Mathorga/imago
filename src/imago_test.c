@@ -12,7 +12,7 @@ int main() {
     struct corticolumn column;
 
     // Initialize the column.
-    init_column(&column, 1000);
+    init_column(&column, 10000000);
 
     printf("Neurons num %d\n", column.neurons_num);
     printf("Synapses num %d\n", column.synapses_num);
@@ -24,7 +24,7 @@ int main() {
     int64_t end_time = get_time_millis();
     printf("Elapsed time: %ld ms\n", end_time - start_time);
 
-    printf("%d\n", column.synapses[0].progress);
+    printf("%d\n", column.spikes[0].progress);
 
     return 0;
 }

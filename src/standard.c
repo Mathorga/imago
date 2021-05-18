@@ -40,16 +40,21 @@ void init_column(struct corticolumn* column, uint32_t neurons_num) {
 }
 
 void propagate(struct corticolumn* column) {
-    // Loop through synapses.
-    for (uint32_t i = 0; i < column->synapses_num; i++) {
-        if (column->synapses[i].progress != SPIKE_DELIVERED &&
-            column->synapses[i].progress < column->synapses[i].propagation_time) {
-            // Increment progress if less than propagationTcolumnime and not alredy delicolumnvered.
-            column->synapses[i].progress++;
-        } else if (column->synapses[i].progress >= column->synapses[i].propagation_time) {
+    // Loop through spikes.
+    for (uint32_t i = 0; i < column->spikes_num; i++) {
+        // Retrieve current spike.
+        struct spike* current_spike = &(column->spikes[i]);
+
+        // Retrieve reference synapse.
+        struct synapse* reference_synapse = &(column->synapses[current_spike->synapse]);
+
+        if (current_spike->progress < reference_synapse->propagation_time &&
+            current_spike->progress != SPIKE_DELIVERED) {
+            // Increment progress if less than propagationTcolumnime and not alredy delivered.
+            current_spike->progress++;
+        } else if (current_spike->progress >= reference_synapse->propagation_time) {
             // Set progress to SPIKE_DELIVERED if propagation time is reached.
-        } else if (column->synapses[i].progress >= column->synapses[i].propagation_time) {
-            column->synapses[i].progress = SPIKE_DELIVERED;
+            current_spike->progress = SPIKE_DELIVERED;
         }
     }
 }
@@ -57,17 +62,26 @@ void propagate(struct corticolumn* column) {
 void increment(struct corticolumn* column) {
     // Loop through neurons.
     for (uint32_t i = 0; i < column->neurons_num; i++) {
+        // Retrieve current neuron.
+        struct neuron* current_neuron = &(column->neurons[i]);
+
         // Make sure the neuron value does not go below 0.
-        if (column->neurons[i].value > 0) {
+        if (current_neuron->value > 0) {
             // Decrement value by decay rate.
-            column->neurons[i].value -= DECAY_RATE;
+            current_neuron->value -= DECAY_RATE;
         }
 
-        // Loop through synapses.
-        for (uint32_t j = 0; j < column->synapses_num; j++) {
+        // Loop through spikes.
+        for (uint32_t j = 0; j < column->spikes_num; j++) {
+            // Retrieve current spike.
+            struct spike* current_spike = &(column->spikes[j]);
+
+            // Retrieve reference synapse.
+            struct synapse* reference_synapse = &(column->synapses[current_spike->synapse]);
+
             // Only increment neuron value if spike is delivered and synapse outputs to the current neuron.
-            if (column->synapses[i].progress == SPIKE_DELIVERED && column->synapses[i].output_neuron == i) {
-                column->neurons[i].value += column->synapses[i].value;
+            if (reference_synapse->output_neuron == i && current_spike->progress == SPIKE_DELIVERED) {
+                current_neuron->value += reference_synapse->value;
             }
         }
     }
