@@ -1,5 +1,7 @@
 # libimago
-![logo](/imago.png)
+<p align="center" width="100%">
+    <img width="33%" src="/imago.png"> 
+</p>
 Spiking neural network implementation in pure C
 
 ## How to compile
