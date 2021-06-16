@@ -1,4 +1,5 @@
 # libimago
+![logo](/res/imago.png)
 Spiking neural network implementation in pure C
 
 ## How to compile
