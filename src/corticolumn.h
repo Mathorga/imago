@@ -25,15 +25,15 @@ Copyright (C) 2021 Luka Micheletti
 #define SPIKE_DELIVERED -1
 #define SPIKE_IDLE -2
 
-struct neuron {
+typedef struct {
     // Threshold value. The neuron fires if value goes above it.
     uint8_t threshold;
 
     // Actual value of the neuron. If it goes above threshold, then the neuron fires.
     uint8_t value;
-};
+} neuron;
 
-struct synapse {
+typedef struct {
     // Propagation time of spikes along the synapse.
     uint8_t propagation_time;
 
@@ -45,33 +45,33 @@ struct synapse {
 
     // Index of the output neuron.
     uint32_t output_neuron;
-};
+} synapse;
 
-struct spike {
+typedef struct {
     // Progress of the current spike along the synapse.
     int16_t progress;
 
     // Reference synapse.
     uint32_t synapse;
-};
+} spike;
 
 // Defines the building block of the brain intelligence: the minimum sensory-motor learning model.
-struct corticolumn {
+typedef struct {
     // The number of neuron in the corticolumn (also defines the number of synapses).
-    uint32_t neurons_num;
+    uint32_t neurons_count;
 
     // Actual neurons in the corticolumn. The size is defined by neuronsNum.
-    struct neuron* neurons;
+    neuron* neurons;
 
     // Amount of synapses in the corticolumn.
-    uint32_t synapses_num;
+    uint32_t synapses_count;
 
     // Synapses in the corticolumn. This size is defined by synapsesNum.
-    struct synapse* synapses;
+    synapse* synapses;
 
-    uint32_t spikes_num;
+    uint32_t spikes_count;
 
-    struct spike* spikes;
-};
+    spike* spikes;
+} corticolumn;
 
 #endif

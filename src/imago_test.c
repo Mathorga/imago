@@ -9,13 +9,13 @@ int64_t get_time_millis() {
 
 int main() {
     // Declare a corticolumn variable.
-    struct corticolumn column;
+    corticolumn column;
 
     // Initialize the column.
-    init_column(&column, 10000000);
+    init_column(&column, 1000000);
 
-    printf("Neurons num %d\n", column.neurons_num);
-    printf("Synapses num %d\n", column.synapses_num);
+    printf("Neurons num \t%d\n", column.neurons_count);
+    printf("Synapses num \t%d\n", column.synapses_count);
 
     int64_t start_time = get_time_millis();
     for (uint32_t i = 0; i < 1; i++) {
