@@ -23,7 +23,8 @@ default: create clean test
 
 test: imago_test
 
-install: lib
+# Installs the library files (headers and compiled) into the default system lookup folders.
+install: libimago.a
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo $(MKDIR) $(SYSTEM_LIB_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
@@ -33,8 +34,11 @@ uninstall: clean
 	sudo $(RM) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo $(RM) $(SYSTEM_LIB_DIR)/imago
 
-lib: standard.o
-	ar -cvq $(BLD_DIR)/libimago.a $(patsubst %.o, $(BLD_DIR)/%.o, $^)
+# Builds all library files.
+lib: libimago.a
+
+libimago.a: standard.o
+	ar -cvq $(BLD_DIR)/$@ $(patsubst %.o, $(BLD_DIR)/%.o, $^)
 
 %.o: $(SRC_DIR)/%.c
 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
