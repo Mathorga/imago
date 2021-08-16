@@ -12,14 +12,21 @@ int main() {
     corticolumn column;
 
     // Initialize the column.
-    init_column(&column, 1000000);
+    dccol_init(&column, 1000000, 20);
 
     printf("Neurons num \t%d\n", column.neurons_count);
     printf("Synapses num \t%d\n", column.synapses_count);
 
     int64_t start_time = get_time_millis();
     for (uint32_t i = 0; i < 1; i++) {
+        // Fire input neurons.
+        
+
+        // Run the model.
         tick(&column);
+
+        // Read output neurons.
+        // TODO
     }
     int64_t end_time = get_time_millis();
     printf("Elapsed time: %ld ms\n", end_time - start_time);

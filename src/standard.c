@@ -1,19 +1,20 @@
 #include "standard.h"
 
-void init_column(corticolumn* column, uint32_t neurons_num) {
+void ccol_init(corticolumn* column, uint32_t neurons_count) {
+    dccol_init(column, neurons_count, 10);
+}
+
+void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density) {
     // Randomize seed.
     // Comment this if you need consistent result across multiple runs.
     // srand(time(NULL));
 
-    // Define synapses per neuron.
-    uint32_t synapses_per_neuron = 10;
-
     // Allocate neurons.
-    column->neurons_count = neurons_num;
+    column->neurons_count = neurons_count;
     column->neurons = (neuron*) malloc(column->neurons_count * sizeof(neuron));
 
     // Allocate synapses.
-    column->synapses_count = synapses_per_neuron * neurons_num;
+    column->synapses_count = synapses_density * neurons_count;
     column->synapses = (synapse*) malloc(column->synapses_count * sizeof(synapse));
 
     // Initialize neurons with default values.

@@ -14,9 +14,19 @@ Copyright (C) 2021 Luka Micheletti
 #include <time.h>
 #include "corticolumn.h"
 
+// Initialization methods.
 // Initializes the given corticolumn with default values.
-void init_column(corticolumn* column, uint32_t neurons_num);
+void ccol_init(corticolumn* column, uint32_t neurons_count);
 
+// Initializes the given corticolumn specifying the synapses density (synapses per neuron).
+void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density);
+
+
+// Editing methods.
+// TODO
+
+
+// Execution methods.
 // Propagates synapse spikes according to their progress.
 void propagate(corticolumn* column);
 
