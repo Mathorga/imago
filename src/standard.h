@@ -14,6 +14,10 @@ Copyright (C) 2021 Luka Micheletti
 #include <time.h>
 #include "corticolumn.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialization methods.
 // Initializes the given corticolumn with default values.
 void ccol_init(corticolumn* column, uint32_t neurons_count);
@@ -38,5 +42,9 @@ void fire(corticolumn* column);
 
 // Performs a full cycle over the network corticolumn.
 void tick(corticolumn* column);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

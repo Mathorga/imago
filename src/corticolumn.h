@@ -25,6 +25,10 @@ Copyright (C) 2021 Luka Micheletti
 #define SPIKE_DELIVERED -1
 #define SPIKE_IDLE -2
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     // Threshold value. The neuron fires if value goes above it.
     uint8_t threshold;
@@ -73,5 +77,9 @@ typedef struct {
 
     spike* spikes;
 } corticolumn;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
