@@ -22,8 +22,6 @@ all: default
 
 default: create clean test
 
-test: imago_test
-
 # Installs the library files (headers and compiled) into the default system lookup folders.
 install: lib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
@@ -46,10 +44,6 @@ libimago.so: standard.o
 
 %.o: $(SRC_DIR)/%.c
 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
-
-imago_test: imago_test.o \
-			standard.o
-	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BIN_DIR)/$@ $(LIBS)
 
 create:
 	$(MKDIR) $(BLD_DIR)

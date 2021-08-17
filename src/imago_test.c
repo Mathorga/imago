@@ -23,7 +23,7 @@ int main() {
         
 
         // Run the model.
-        tick(&column);
+        ccol_tick(&column);
 
         // Read output neurons.
         // TODO

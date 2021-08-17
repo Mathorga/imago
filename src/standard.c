@@ -39,9 +39,23 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
         column->synapses[i].propagation_time = DEFAULT_PROPAGATION_TIME;
         column->synapses[i].value = DEFAULT_VALUE;
     }
+
+    // Initialize spikes data.
+    column->spikes_count = 0;
 }
 
-void propagate(corticolumn* column) {
+void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
+    if (targets_count > column->neurons_count) {
+        // TODO Handle error.
+        return;
+    }
+
+    for (uint32_t i = 0; i < targets_count; i++) {
+        column->neurons[target_neurons[i]].value += value;
+    }
+}
+
+void ccol_propagate(corticolumn* column) {
     // Loop through spikes.
     for (uint32_t i = 0; i < column->spikes_count; i++) {
         // Retrieve current spike.
@@ -61,7 +75,7 @@ void propagate(corticolumn* column) {
     }
 }
 
-void increment(corticolumn* column) {
+void ccol_increment(corticolumn* column) {
     // Loop through neurons.
     for (uint32_t i = 0; i < column->neurons_count; i++) {
         // Retrieve current neuron.
@@ -89,7 +103,7 @@ void increment(corticolumn* column) {
     }
 }
 
-void fire(corticolumn* column) {
+void ccol_fire(corticolumn* column) {
     // Loop through neurons and fire those whose value exceeded their threshold.
     for (uint32_t i = 0; i < column->neurons_count; i++) {
         if (column->neurons[i].value > column->neurons[i].threshold) {
@@ -98,13 +112,13 @@ void fire(corticolumn* column) {
     }
 }
 
-void tick(corticolumn* column) {
+void ccol_tick(corticolumn* column) {
     // Update synapses.
-    propagate(column);
+    ccol_propagate(column);
 
     // Update neurons.
-    increment(column);
+    ccol_increment(column);
 
     // Fire neurons.
-    fire(column);
+    ccol_fire(column);
 }

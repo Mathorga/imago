@@ -27,21 +27,25 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
 
 
 // Editing methods.
-// TODO
+// TODO.
 
 
 // Execution methods.
+// Feeds external spikes to the specified neurons.
+void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value);
+
+
 // Propagates synapse spikes according to their progress.
-void propagate(corticolumn* column);
+void ccol_propagate(corticolumn* column);
 
 // Increments neuron values with spikes from input synapses and decrements them by decay.
-void increment(corticolumn* column);
+void ccol_increment(corticolumn* column);
 
 // Triggers neuron firing if values exceeds threshold.
-void fire(corticolumn* column);
+void ccol_fire(corticolumn* column);
 
 // Performs a full cycle over the network corticolumn.
-void tick(corticolumn* column);
+void ccol_tick(corticolumn* column);
 
 #ifdef __cplusplus
 }
