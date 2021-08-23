@@ -89,8 +89,12 @@ int main(int argc, char **argv) {
         // Draw synapses.
         for (uint32_t i = 0; i < column.synapses_count; i++) {
             sf::Vertex line[] = {
-                sf::Vertex({xNeuronPositions[column.synapses[i].input_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].input_neuron] * desktopMode.height}, sf::Color(255, 255, 31, 127)),
-                sf::Vertex({xNeuronPositions[column.synapses[i].output_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].output_neuron] * desktopMode.height}, sf::Color(31, 127, 255, 127))
+                sf::Vertex(
+                    {xNeuronPositions[column.synapses[i].input_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].input_neuron] * desktopMode.height},
+                    sf::Color(255, 255, 31, 127)),
+                sf::Vertex(
+                    {xNeuronPositions[column.synapses[i].output_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].output_neuron] * desktopMode.height},
+                    sf::Color(31, 127, 255, 127))
             };
 
             window.draw(line, 2, sf::Lines);
