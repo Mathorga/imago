@@ -38,8 +38,11 @@ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_c
 // Propagates synapse spikes according to their progress.
 void ccol_propagate(corticolumn* column);
 
-// Increments neuron values with spikes from input synapses and decrements them by decay.
+// Increments neuron values with spikes from input synapses.
 void ccol_increment(corticolumn* column);
+
+// Decrements all neurons values by decay.
+void ccol_decay(corticolumn* column);
 
 // Triggers neuron firing if values exceeds threshold.
 void ccol_fire(corticolumn* column);

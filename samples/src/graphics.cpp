@@ -11,6 +11,13 @@ float randomFloat(float min, float max) {
     return (random * range) + min;
 }
 
+void initPositions(corticolumn column, float* xNeuronPositions, float* yNeuronPositions) {
+    for (uint32_t i = 0; i < column.neurons_count; i++) {
+        xNeuronPositions[i] = randomFloat(0, 1);
+        yNeuronPositions[i] = randomFloat(0, 1);
+    }
+}
+
 int main(int argc, char **argv) {
     int neuronsCount = 100;
     int synapsesDensity = 2;
@@ -40,10 +47,7 @@ int main(int argc, char **argv) {
     float* xNeuronPositions = (float*) malloc(column.neurons_count * sizeof(float));
     float* yNeuronPositions = (float*) malloc(column.neurons_count * sizeof(float));
 
-    for (uint32_t i = 0; i < column.neurons_count; i++) {
-        xNeuronPositions[i] = randomFloat(0, 1);
-        yNeuronPositions[i] = randomFloat(0, 1);
-    }
+    initPositions(column, xNeuronPositions, yNeuronPositions);
     
     sf::ContextSettings settings;
     settings.antialiasingLevel = 16;
@@ -53,14 +57,23 @@ int main(int argc, char **argv) {
 
     // Run the program as long as the window is open
     while (window.isOpen()) {
-        usleep(20000);
+        usleep(10000);
 
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         while (window.pollEvent(event)) {
             // "close requested" event: we close the window
-            if (event.type == sf::Event::Closed) {
-                window.close();
+            switch(event.type) {
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+                case sf::Event::KeyReleased:
+                    if (event.key.code == sf::Keyboard::Space) {
+                        initPositions(column, xNeuronPositions, yNeuronPositions);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -76,13 +89,14 @@ int main(int argc, char **argv) {
         // Draw neurons.
         for (uint32_t i = 0; i < column.neurons_count; i++) {
             sf::CircleShape neuronSpot;
-            neuronSpot.setRadius(5.0f);
+            float radius = 5.0f;
+            neuronSpot.setRadius(radius);
             neuronSpot.setFillColor(sf::Color(64, 64, (sf::Uint8) column.neurons[i].value, 255));
             
             neuronSpot.setPosition(xNeuronPositions[i] * desktopMode.width, yNeuronPositions[i] * desktopMode.height);
 
             // Center the spot.
-            neuronSpot.setOrigin(5.0f, 5.0f);
+            neuronSpot.setOrigin(radius, radius);
             window.draw(neuronSpot);
         }
 
@@ -91,14 +105,43 @@ int main(int argc, char **argv) {
             sf::Vertex line[] = {
                 sf::Vertex(
                     {xNeuronPositions[column.synapses[i].input_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].input_neuron] * desktopMode.height},
-                    sf::Color(255, 255, 31, 127)),
+                    sf::Color(255, 255, 31, 63)),
                 sf::Vertex(
                     {xNeuronPositions[column.synapses[i].output_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].output_neuron] * desktopMode.height},
-                    sf::Color(31, 127, 255, 127))
+                    sf::Color(31, 127, 255, 63))
             };
 
             window.draw(line, 2, sf::Lines);
         }
+
+        // Draw spikes.
+        sf::Font font;
+        if (!font.loadFromFile("res/JetBrainsMono.ttf")) {
+            printf("Font not loaded\n");
+        }
+        sf::Text infoText;
+        infoText.setPosition(20.0f, 20.0f);
+        infoText.setString(std::to_string(column.spikes_count));
+        infoText.setFont(font);
+        infoText.setCharacterSize(24);
+        infoText.setFillColor(sf::Color::White);
+        window.draw(infoText);
+        // for (uint32_t i = 0; i < column.spikes_count; i++) {
+        //     sf::CircleShape spikeSpot;
+        //     float radius = 2.0f;
+        //     spikeSpot.setRadius(radius);
+        //     spikeSpot.setFillColor(sf::Color::Red);
+
+        //     synapse* referenceSynapse = &(column.synapses[column.spikes[i].synapse]);
+        //     uint32_t startingNeuron = referenceSynapse->input_neuron;
+        //     uint32_t endingNeuron = referenceSynapse->output_neuron;
+            
+        //     spikeSpot.setPosition(xNeuronPositions[i] * desktopMode.width, yNeuronPositions[i] * desktopMode.height);
+
+        //     // Center the spot.
+        //     spikeSpot.setOrigin(radius, radius);
+        //     window.draw(spikeSpot);
+        // }
 
         // end the current frame
         window.display();

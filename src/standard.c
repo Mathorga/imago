@@ -42,6 +42,7 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
 
     // Initialize spikes data.
     column->spikes_count = 0;
+    column->spikes = (spike*) malloc(0);
 }
 
 void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
@@ -76,6 +77,30 @@ void ccol_propagate(corticolumn* column) {
 }
 
 void ccol_increment(corticolumn* column) {
+    uint32_t traveling_spikes_count = 0;
+    spike* traveling_spikes = (spike*) malloc(traveling_spikes_count * sizeof(spike));
+
+    // Loop through spikes.
+    for (uint32_t i = 0; i < column->spikes_count; i++) {
+        if (column->spikes[i].progress == SPIKE_DELIVERED) {
+            // Increment target neuron.
+            synapse* reference_synapse = &(column->synapses[column->spikes[i].synapse]);
+            neuron* target_neuron = &(column->neurons[reference_synapse->output_neuron]);
+
+            target_neuron->value += reference_synapse->value;
+        } else {
+            // Save the spike as traveling.
+            traveling_spikes = realloc(&traveling_spikes, (++traveling_spikes_count) * sizeof(spike));
+            traveling_spikes[traveling_spikes_count - 1] = column->spikes[i];
+        }
+    }
+
+    free(column->spikes);
+    column->spikes = traveling_spikes;
+    column->spikes_count = traveling_spikes_count;
+}
+
+void ccol_decay(corticolumn* column) {
     // Loop through neurons.
     for (uint32_t i = 0; i < column->neurons_count; i++) {
         // Retrieve current neuron.
@@ -86,28 +111,20 @@ void ccol_increment(corticolumn* column) {
             // Decrement value by decay rate.
             current_neuron->value -= DECAY_RATE;
         }
-
-        // Loop through spikes.
-        for (uint32_t j = 0; j < column->spikes_count; j++) {
-            // Retrieve current spike.
-            spike* current_spike = &(column->spikes[j]);
-
-            // Retrieve reference synapse.
-            synapse* reference_synapse = &(column->synapses[current_spike->synapse]);
-
-            // Only increment neuron value if spike is delivered and synapse outputs to the current neuron.
-            if (reference_synapse->output_neuron == i && current_spike->progress == SPIKE_DELIVERED) {
-                current_neuron->value += reference_synapse->value;
-            }
-        }
     }
 }
 
 void ccol_fire(corticolumn* column) {
-    // Loop through neurons and fire those whose value exceeded their threshold.
-    for (uint32_t i = 0; i < column->neurons_count; i++) {
-        if (column->neurons[i].value > column->neurons[i].threshold) {
-            // Loop through synapses and fire them.
+    // Loop through synapses and fire spikes on those whose input neuron's value exceeds their threshold.
+    for (uint32_t i = 0; i < column->synapses_count; i++) {
+        neuron* input_neuron = &(column->neurons[column->synapses[i].input_neuron]);
+        if (input_neuron->value > input_neuron->threshold) {
+            // Create a new spike.
+            column->spikes_count++;
+            column->spikes = realloc(column->spikes, column->spikes_count * sizeof(spike*));
+
+            column->spikes[column->spikes_count - 1].progress = 0;
+            column->spikes[column->spikes_count - 1].synapse = i;
         }
     }
 }
@@ -116,8 +133,11 @@ void ccol_tick(corticolumn* column) {
     // Update synapses.
     ccol_propagate(column);
 
-    // Update neurons.
+    // Update neurons with spikes data.
     ccol_increment(column);
+
+    // Apply decay to all neurons.
+    ccol_decay(column);
 
     // Fire neurons.
     ccol_fire(column);
