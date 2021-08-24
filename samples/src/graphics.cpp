@@ -78,11 +78,11 @@ int main(int argc, char **argv) {
         }
 
         // Clear the window with black color
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(31, 31, 31, 255));
 
         uint32_t input_neurons[] = {0, 1, 2, 3};
-        if (randomFloat(0, 1) < 0.9f) {
-            ccol_feed(&column, input_neurons, 4, 2);
+        if (randomFloat(0, 1) < 0.4f) {
+            ccol_feed(&column, input_neurons, 4, DEFAULT_VALUE);
         }
         ccol_tick(&column);
 
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
             window.draw(line, 2, sf::Lines);
         }
 
-        // Draw spikes.
+        // Draw spikes count.
         sf::Font font;
         if (!font.loadFromFile("res/JetBrainsMono.ttf")) {
             printf("Font not loaded\n");
@@ -126,24 +126,34 @@ int main(int argc, char **argv) {
         infoText.setCharacterSize(24);
         infoText.setFillColor(sf::Color::White);
         window.draw(infoText);
-        // for (uint32_t i = 0; i < column.spikes_count; i++) {
-        //     sf::CircleShape spikeSpot;
-        //     float radius = 2.0f;
-        //     spikeSpot.setRadius(radius);
-        //     spikeSpot.setFillColor(sf::Color::Red);
 
-        //     synapse* referenceSynapse = &(column.synapses[column.spikes[i].synapse]);
-        //     uint32_t startingNeuron = referenceSynapse->input_neuron;
-        //     uint32_t endingNeuron = referenceSynapse->output_neuron;
+        // Draw spikes.
+        for (uint32_t i = 0; i < column.spikes_count; i++) {
+            sf::CircleShape spikeSpot;
+            float radius = 2.0f;
+            spikeSpot.setRadius(radius);
+            spikeSpot.setFillColor(sf::Color(255, 255, 255, 31));
+
+            synapse* referenceSynapse = &(column.synapses[column.spikes[i].synapse]);
+            uint32_t startingNeuron = referenceSynapse->input_neuron;
+            uint32_t endingNeuron = referenceSynapse->output_neuron;
+
+            float xDist = xNeuronPositions[endingNeuron] * desktopMode.width - xNeuronPositions[startingNeuron] * desktopMode.width;
+            float yDist = yNeuronPositions[endingNeuron] * desktopMode.height - yNeuronPositions[startingNeuron] * desktopMode.height;
+
+            float progress = ((float) column.spikes[i].progress) / ((float) referenceSynapse->propagation_time);
+
+            float xSpikePosition = xNeuronPositions[startingNeuron] * desktopMode.width + (progress * (xDist));
+            float ySpikePosition = yNeuronPositions[startingNeuron] * desktopMode.height + (progress * (yDist));
             
-        //     spikeSpot.setPosition(xNeuronPositions[i] * desktopMode.width, yNeuronPositions[i] * desktopMode.height);
+            spikeSpot.setPosition(xSpikePosition, ySpikePosition);
 
-        //     // Center the spot.
-        //     spikeSpot.setOrigin(radius, radius);
-        //     window.draw(spikeSpot);
-        // }
+            // Center the spot.
+            spikeSpot.setOrigin(radius, radius);
+            window.draw(spikeSpot);
+        }
 
-        // end the current frame
+        // End the current frame.
         window.display();
     }
 

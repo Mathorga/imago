@@ -67,7 +67,7 @@ void ccol_propagate(corticolumn* column) {
 
         if (current_spike->progress < reference_synapse->propagation_time &&
             current_spike->progress != SPIKE_DELIVERED) {
-            // Increment progress if less than propagationTcolumnime and not alredy delivered.
+            // Increment progress if less than propagation time and not alredy delivered.
             current_spike->progress++;
         } else if (current_spike->progress >= reference_synapse->propagation_time) {
             // Set progress to SPIKE_DELIVERED if propagation time is reached.
@@ -131,6 +131,14 @@ void ccol_fire(corticolumn* column) {
 
             column->spikes[column->spikes_count - 1].progress = 0;
             column->spikes[column->spikes_count - 1].synapse = i;
+        }
+    }
+
+    for (uint32_t i = 0; i < column->neurons_count; i++) {
+        neuron* current_neuron = &(column->neurons[i]);
+        if (current_neuron->value > current_neuron->threshold) {
+            // Set neuron value to recovery.
+            current_neuron->value = RECOVERY_VALUE;
         }
     }
 }

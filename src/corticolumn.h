@@ -15,13 +15,14 @@ Copyright (C) 2021 Luka Micheletti
 #define DEFAULT_THRESHOLD 0xCCu
 #define STARTING_VALUE 0x00u
 #define DECAY_RATE 1
+#define RECOVERY_VALUE -0x22
 
 // Synapse values.
-#define DEFAULT_VALUE -0x22
-#define DEFAULT_PROPAGATION_TIME 0x22u
+#define DEFAULT_VALUE 0x22
+#define DEFAULT_PROPAGATION_TIME 0x32u
 #define STARTING_PROGRESS 0x00u
 
-// Spyke values.
+// Spike values.
 #define SPIKE_DELIVERED -1
 #define SPIKE_IDLE -2
 
@@ -34,7 +35,7 @@ typedef struct {
     uint8_t threshold;
 
     // Actual value of the neuron. If it goes above threshold, then the neuron fires.
-    uint8_t value;
+    int16_t value;
 } neuron;
 
 typedef struct {
