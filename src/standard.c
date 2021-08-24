@@ -100,6 +100,7 @@ void ccol_increment(corticolumn* column) {
         }
     }
 
+    // Reset spikes.
     free(column->spikes);
     column->spikes = traveling_spikes;
     column->spikes_count = traveling_spikes_count;
