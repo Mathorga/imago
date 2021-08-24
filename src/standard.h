@@ -11,6 +11,8 @@ Copyright (C) 2021 Luka Micheletti
 
 #include <stdint.h>
 #include <stdlib.h>
+// TODO Remove in release.
+#include <stdio.h>
 #include <time.h>
 #include "corticolumn.h"
 

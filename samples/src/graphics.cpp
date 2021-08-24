@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     initPositions(column, xNeuronPositions, yNeuronPositions);
     
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 16;
+    settings.antialiasingLevel = 8;
 
     // create the window
     sf::RenderWindow window(desktopMode, "Imago", sf::Style::Fullscreen, settings);
@@ -105,10 +105,10 @@ int main(int argc, char **argv) {
             sf::Vertex line[] = {
                 sf::Vertex(
                     {xNeuronPositions[column.synapses[i].input_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].input_neuron] * desktopMode.height},
-                    sf::Color(255, 255, 31, 63)),
+                    sf::Color(255, 127, 31, 31)),
                 sf::Vertex(
                     {xNeuronPositions[column.synapses[i].output_neuron] * desktopMode.width, yNeuronPositions[column.synapses[i].output_neuron] * desktopMode.height},
-                    sf::Color(31, 127, 255, 63))
+                    sf::Color(31, 127, 255, 31))
             };
 
             window.draw(line, 2, sf::Lines);
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
         }
         sf::Text infoText;
         infoText.setPosition(20.0f, 20.0f);
-        infoText.setString(std::to_string(column.spikes_count));
+        infoText.setString("Spikes count: " + std::to_string(column.spikes_count));
         infoText.setFont(font);
         infoText.setCharacterSize(24);
         infoText.setFillColor(sf::Color::White);

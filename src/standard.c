@@ -90,7 +90,12 @@ void ccol_increment(corticolumn* column) {
             target_neuron->value += reference_synapse->value;
         } else {
             // Save the spike as traveling.
-            traveling_spikes = realloc(&traveling_spikes, (++traveling_spikes_count) * sizeof(spike));
+            traveling_spikes_count++;
+            if (traveling_spikes_count <= 0) {
+                traveling_spikes = (spike*) malloc(traveling_spikes_count * sizeof(spike));
+            } else {
+                traveling_spikes = realloc(traveling_spikes, traveling_spikes_count * sizeof(spike));
+            }
             traveling_spikes[traveling_spikes_count - 1] = column->spikes[i];
         }
     }
