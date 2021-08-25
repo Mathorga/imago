@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
         window.draw(infoText);
 
         // Draw spikes.
-        // drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
+        drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
         // End the current frame.
         window.display();
