@@ -36,7 +36,7 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
 
         column->synapses[i].input_neuron = randomInput;
         column->synapses[i].output_neuron = randomOutput;
-        column->synapses[i].propagation_time = DEFAULT_PROPAGATION_TIME;
+        column->synapses[i].propagation_time = MIN_PROPAGATION_TIME + (rand() % DEFAULT_PROPAGATION_TIME - MIN_PROPAGATION_TIME);
         column->synapses[i].value = DEFAULT_VALUE;
     }
 
@@ -116,6 +116,8 @@ void ccol_decay(corticolumn* column) {
         if (current_neuron->value > 0) {
             // Decrement value by decay rate.
             current_neuron->value -= DECAY_RATE;
+        } else if (current_neuron->value < 0) {
+            current_neuron->value += DECAY_RATE;
         }
     }
 }

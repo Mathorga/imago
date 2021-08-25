@@ -15,10 +15,11 @@ Copyright (C) 2021 Luka Micheletti
 #define DEFAULT_THRESHOLD 0xCCu
 #define STARTING_VALUE 0x00u
 #define DECAY_RATE 1
-#define RECOVERY_VALUE -0x22
+#define RECOVERY_VALUE -0x77
 
 // Synapse values.
 #define DEFAULT_VALUE 0x22
+#define MIN_PROPAGATION_TIME 0x11u
 #define DEFAULT_PROPAGATION_TIME 0x32u
 #define STARTING_PROGRESS 0x00u
 
