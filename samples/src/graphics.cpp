@@ -88,7 +88,7 @@ void drawSpikes(corticolumn column, sf::RenderWindow* window, sf::VideoMode vide
 
 int main(int argc, char **argv) {
     int neuronsCount = 100;
-    int synapsesDensity = 2;
+    int synapsesDensity = 10;
 
     // Input handling.
     switch (argc) {
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
     initPositions(column, xNeuronPositions, yNeuronPositions);
     
     sf::ContextSettings settings;
-    // settings.antialiasingLevel = 8;
+    // settings.antialiasingLevel = 16;
 
     // create the window
     sf::RenderWindow window(desktopMode, "Imago", sf::Style::Fullscreen, settings);
@@ -163,11 +163,32 @@ int main(int argc, char **argv) {
         }
         ccol_tick(&column);
 
+        // Highlight input neurons.
+        for (uint32_t i = 0; i < 4; i++) {
+            sf::CircleShape neuronCircle;
+
+            float radius = 7.0f;
+            neuronCircle.setRadius(radius);
+            neuronCircle.setOutlineThickness(2);
+            neuronCircle.setOutlineColor(sf::Color::White);
+
+            neuronCircle.setFillColor(sf::Color::Transparent);
+            
+            neuronCircle.setPosition(xNeuronPositions[i] * desktopMode.width, yNeuronPositions[i] * desktopMode.height);
+
+            // Center the spot.
+            neuronCircle.setOrigin(radius, radius);
+            window.draw(neuronCircle);
+        }
+
         // Draw neurons.
         drawNeurons(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
         // Draw synapses.
         drawSynapses(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
+
+        // Draw spikes.
+        drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
         // Draw spikes count.
         sf::Font font;
@@ -181,9 +202,6 @@ int main(int argc, char **argv) {
         infoText.setCharacterSize(24);
         infoText.setFillColor(sf::Color::White);
         window.draw(infoText);
-
-        // Draw spikes.
-        drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
         // End the current frame.
         window.display();
