@@ -16,6 +16,8 @@ Copyright (C) 2021 Luka Micheletti
 #define STARTING_VALUE 0x00u
 #define DECAY_RATE 1
 #define RECOVERY_VALUE -0x77
+#define NEURON_LIFESPAN 0x1111u
+#define NEURON_INACTIVITY_MAX 0xFFFFu
 
 // Synapse values.
 #define DEFAULT_VALUE 0x22
@@ -31,51 +33,72 @@ Copyright (C) 2021 Luka Micheletti
 extern "C" {
 #endif
 
+// Neuron data types.
+typedef uint8_t neuron_threshold_t;
+typedef int16_t neuron_value_t;
+typedef uint16_t neuron_inactivity_t;
+
+// Synapse data types.
+typedef uint8_t synapse_propagation_time_t;
+typedef int8_t synapse_value_t;
+
+// Spike data types.
+typedef int16_t spike_progress_t;
+
+// Corticolumn data types.
+typedef uint32_t neurons_count_t;
+typedef uint32_t synapses_count_t;
+typedef uint32_t spikes_count_t;
+
+
 typedef struct {
     // Threshold value. The neuron fires if value goes above it.
-    uint8_t threshold;
+    neuron_threshold_t threshold;
 
     // Actual value of the neuron. If it goes above threshold, then the neuron fires.
-    int16_t value;
+    neuron_value_t value;
+
+    // The number of timesteps since the last firing.
+    neuron_inactivity_t inactivity;
 } neuron;
 
 typedef struct {
     // Propagation time of spikes along the synapse.
-    uint8_t propagation_time;
+    synapse_propagation_time_t propagation_time;
 
     // Value of the synapse. This is what influences the output neuron.
-    int8_t value;
+    synapse_value_t value;
 
     // Index of the input neuron.
-    uint32_t input_neuron;
+    neurons_count_t input_neuron;
 
     // Index of the output neuron.
-    uint32_t output_neuron;
+    neurons_count_t output_neuron;
 } synapse;
 
 typedef struct {
     // Progress of the current spike along the synapse.
-    int16_t progress;
+    spike_progress_t progress;
 
     // Reference synapse.
-    uint32_t synapse;
+    synapses_count_t synapse;
 } spike;
 
 // Defines the building block of the brain intelligence: the minimum sensory-motor learning model.
 typedef struct {
     // The number of neuron in the corticolumn (also defines the number of synapses).
-    uint32_t neurons_count;
+    neurons_count_t neurons_count;
 
     // Actual neurons in the corticolumn. The size is defined by neuronsNum.
     neuron* neurons;
 
     // Amount of synapses in the corticolumn.
-    uint32_t synapses_count;
+    synapses_count_t synapses_count;
 
     // Synapses in the corticolumn. This size is defined by synapsesNum.
     synapse* synapses;
 
-    uint32_t spikes_count;
+    spikes_count_t spikes_count;
 
     spike* spikes;
 } corticolumn;

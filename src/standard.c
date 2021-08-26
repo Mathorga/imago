@@ -141,6 +141,11 @@ void ccol_fire(corticolumn* column) {
         if (current_neuron->value > current_neuron->threshold) {
             // Set neuron value to recovery.
             current_neuron->value = RECOVERY_VALUE;
+            current_neuron->inactivity = 0;
+        } else {
+            if (current_neuron->inactivity < INT16_MAX) {
+                current_neuron->inactivity++;
+            }
         }
     }
 }
@@ -157,4 +162,28 @@ void ccol_tick(corticolumn* column) {
 
     // Fire neurons.
     ccol_fire(column);
+}
+
+void ccol_syndel(corticolumn* column) {
+    // Loop through synapses.
+    for (synapses_count_t i = 0; i < column->synapses_count; i++) {
+        synapse* current_synapse = &(column->synapses[i]);
+
+        neuron* input_neuron = &(column->neurons[current_synapse->input_neuron]);
+        if (input_neuron->inactivity > SYNAPSE_LIFESPAN) {
+            // TODO Delete synapse (with probability?).
+        }
+    }
+}
+
+void ccol_syngen(corticolumn* column) {
+    // TODO
+}
+
+void ccol_evolve(corticolumn* column) {
+    // Delete all unused synapses.
+    ccol_syndel(column);
+
+    // Add synapses to busy neurons.
+    ccol_syngen(column);
 }
