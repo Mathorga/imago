@@ -122,6 +122,8 @@ int main(int argc, char **argv) {
 
     // create the window
     sf::RenderWindow window(desktopMode, "Imago", sf::Style::Fullscreen, settings);
+    
+    bool feed = false;
 
     // Run the program as long as the window is open.
     while (window.isOpen()) {
@@ -144,6 +146,8 @@ int main(int argc, char **argv) {
                         case sf::Keyboard::Q:
                             window.close();
                             break;
+                        case sf::Keyboard::B:
+                            feed = !feed;
                         default:
                             break;
                     }
@@ -158,7 +162,7 @@ int main(int argc, char **argv) {
 
         // Feed the column and tick it.
         uint32_t input_neurons[] = {0, 1, 2, 3};
-        if (randomFloat(0, 1) < 0.4f) {
+        if (feed && randomFloat(0, 1) < 0.4f) {
             ccol_feed(&column, input_neurons, 4, DEFAULT_VALUE);
         }
         ccol_tick(&column);
@@ -197,7 +201,7 @@ int main(int argc, char **argv) {
         }
         sf::Text infoText;
         infoText.setPosition(20.0f, 20.0f);
-        infoText.setString("Spikes count: " + std::to_string(column.spikes_count));
+        infoText.setString("Spikes count: " + std::to_string(column.spikes_count) + "\nFeeding: " + (feed ? "true" : "false"));
         infoText.setFont(font);
         infoText.setCharacterSize(24);
         infoText.setFillColor(sf::Color::White);
