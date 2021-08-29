@@ -24,7 +24,7 @@ Copyright (C) 2021 Luka Micheletti
 #define MIN_PROPAGATION_TIME 0x11u
 #define DEFAULT_PROPAGATION_TIME 0x32u
 #define STARTING_PROGRESS 0x00u
-#define SYNAPSE_LIFESPAN 0x1111u
+#define SYNAPSE_LIFESPAN 0x00FFu
 
 // Spike values.
 #define SPIKE_DELIVERED -1

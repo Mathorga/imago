@@ -123,11 +123,14 @@ int main(int argc, char **argv) {
     // create the window
     sf::RenderWindow window(desktopMode, "Imago", sf::Style::Fullscreen, settings);
     
-    bool feed = false;
+    bool feeding = false;
+
+    int counter = 0;
 
     // Run the program as long as the window is open.
     while (window.isOpen()) {
         usleep(1000);
+        counter++;
 
         // Check all the window's events that were triggered since the last iteration of the loop.
         sf::Event event;
@@ -146,8 +149,8 @@ int main(int argc, char **argv) {
                         case sf::Keyboard::Q:
                             window.close();
                             break;
-                        case sf::Keyboard::B:
-                            feed = !feed;
+                        case sf::Keyboard::Space:
+                            feeding = !feeding;
                         default:
                             break;
                     }
@@ -160,9 +163,13 @@ int main(int argc, char **argv) {
         // Clear the window with black color
         window.clear(sf::Color(31, 31, 31, 255));
 
+        if (counter % 10 == 0){// && feeding) {
+            ccol_evolve(&column);
+        }
+
         // Feed the column and tick it.
         uint32_t input_neurons[] = {0, 1, 2, 3};
-        if (feed && randomFloat(0, 1) < 0.4f) {
+        if (feeding && randomFloat(0, 1) < 0.4f) {
             ccol_feed(&column, input_neurons, 4, DEFAULT_VALUE);
         }
         ccol_tick(&column);
@@ -201,7 +208,10 @@ int main(int argc, char **argv) {
         }
         sf::Text infoText;
         infoText.setPosition(20.0f, 20.0f);
-        infoText.setString("Spikes count: " + std::to_string(column.spikes_count) + "\nFeeding: " + (feed ? "true" : "false"));
+        infoText.setString(
+            "Spikes count: " + std::to_string(column.spikes_count) + "\n" +
+            "Feeding: " + (feeding ? "true" : "false") + "\n" +
+            "Iterations: " + std::to_string(counter) + "\n");
         infoText.setFont(font);
         infoText.setCharacterSize(24);
         infoText.setFillColor(sf::Color::White);

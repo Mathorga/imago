@@ -143,7 +143,7 @@ void ccol_fire(corticolumn* column) {
             current_neuron->value = RECOVERY_VALUE;
             current_neuron->inactivity = 0;
         } else {
-            if (current_neuron->inactivity < INT16_MAX) {
+            if (current_neuron->inactivity <= SYNAPSE_LIFESPAN) {
                 current_neuron->inactivity++;
             }
         }
@@ -165,15 +165,33 @@ void ccol_tick(corticolumn* column) {
 }
 
 void ccol_syndel(corticolumn* column) {
+    // Allocate tmp vector for synapses.
+    synapses_count_t tmp_synapses_count = 0;
+    synapse* tmp_synapses = (synapse*) malloc(tmp_synapses_count * sizeof(synapse));
+
     // Loop through synapses.
     for (synapses_count_t i = 0; i < column->synapses_count; i++) {
         synapse* current_synapse = &(column->synapses[i]);
 
         neuron* input_neuron = &(column->neurons[current_synapse->input_neuron]);
-        if (input_neuron->inactivity > SYNAPSE_LIFESPAN) {
-            // TODO Delete synapse (with probability?).
+        if (input_neuron->inactivity <= SYNAPSE_LIFESPAN) {
+            // Preserve synapse.
+            tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
+            tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
+        } else {
+            if (rand() % 100 > 5) {
+                // Preserve synapse.
+                tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
+                tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
+            }
         }
     }
+
+    free(column->synapses);
+    column->synapses = tmp_synapses;
+    column->synapses_count = tmp_synapses_count;
+
+    // There should be no spike on a synapse that exceeded its lifespan, so there's no need to delete related spikes.
 }
 
 void ccol_syngen(corticolumn* column) {
