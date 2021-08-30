@@ -19,8 +19,8 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
 
     // Initialize neurons with default values.
     for (uint32_t i = 0; i < column->neurons_count; i++) {
-        column->neurons[i].threshold = DEFAULT_THRESHOLD;
-        column->neurons[i].value = STARTING_VALUE;
+        column->neurons[i].threshold = NEURON_DEFAULT_THRESHOLD;
+        column->neurons[i].value = NEURON_STARTING_VALUE;
     }
 
     // Initialize synapses with random values.
@@ -36,8 +36,8 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
 
         column->synapses[i].input_neuron = randomInput;
         column->synapses[i].output_neuron = randomOutput;
-        column->synapses[i].propagation_time = MIN_PROPAGATION_TIME + (rand() % DEFAULT_PROPAGATION_TIME - MIN_PROPAGATION_TIME);
-        column->synapses[i].value = DEFAULT_VALUE;
+        column->synapses[i].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
+        column->synapses[i].value = SYNAPSE_DEFAULT_VALUE;
     }
 
     // Initialize spikes data.
@@ -115,9 +115,9 @@ void ccol_decay(corticolumn* column) {
         // Make sure the neuron value does not go below 0.
         if (current_neuron->value > 0) {
             // Decrement value by decay rate.
-            current_neuron->value -= DECAY_RATE;
+            current_neuron->value -= NEURON_DECAY_RATE;
         } else if (current_neuron->value < 0) {
-            current_neuron->value += DECAY_RATE;
+            current_neuron->value += NEURON_DECAY_RATE;
         }
     }
 }
@@ -140,7 +140,7 @@ void ccol_fire(corticolumn* column) {
         neuron* current_neuron = &(column->neurons[i]);
         if (current_neuron->value > current_neuron->threshold) {
             // Set neuron value to recovery.
-            current_neuron->value = RECOVERY_VALUE;
+            current_neuron->value = NEURON_RECOVERY_VALUE;
             current_neuron->inactivity = 0;
         } else {
             if (current_neuron->inactivity <= SYNAPSE_LIFESPAN) {
@@ -184,7 +184,7 @@ void ccol_syndel(corticolumn* column) {
             tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
             old_indices[tmp_synapses_count - 1] = i;
         } else {
-            if (rand() % 100 > 5) {
+            if (rand() % 1000 > 1) {
                 // Preserve synapse.
                 tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
                 old_indices = realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
@@ -194,6 +194,7 @@ void ccol_syndel(corticolumn* column) {
         }
     }
 
+    // Update the column with the new synapses.
     free(column->synapses);
     column->synapses = tmp_synapses;
     column->synapses_count = tmp_synapses_count;
@@ -217,6 +218,8 @@ void ccol_syndel(corticolumn* column) {
 
 void ccol_syngen(corticolumn* column) {
     // TODO
+
+
 }
 
 void ccol_evolve(corticolumn* column) {
