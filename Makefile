@@ -23,7 +23,7 @@ all: default
 default: create clean test
 
 # Installs the library files (headers and compiled) into the default system lookup folders.
-install: lib
+install: create lib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
