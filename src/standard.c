@@ -169,6 +169,9 @@ void ccol_syndel(corticolumn* column) {
     synapses_count_t tmp_synapses_count = 0;
     synapse* tmp_synapses = (synapse*) malloc(tmp_synapses_count * sizeof(synapse));
 
+    // Keep track of old indices in order to update them in related spikes.
+    synapses_count_t* old_indices = (synapses_count_t*) malloc(tmp_synapses_count * sizeof(synapses_count_t));
+
     // Loop through synapses.
     for (synapses_count_t i = 0; i < column->synapses_count; i++) {
         synapse* current_synapse = &(column->synapses[i]);
@@ -177,12 +180,16 @@ void ccol_syndel(corticolumn* column) {
         if (input_neuron->inactivity <= SYNAPSE_LIFESPAN) {
             // Preserve synapse.
             tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
+            old_indices = realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
             tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
+            old_indices[tmp_synapses_count - 1] = i;
         } else {
             if (rand() % 100 > 5) {
                 // Preserve synapse.
                 tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
+                old_indices = realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
                 tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
+                old_indices[tmp_synapses_count - 1] = i;
             }
         }
     }
@@ -192,6 +199,20 @@ void ccol_syndel(corticolumn* column) {
     column->synapses_count = tmp_synapses_count;
 
     // There should be no spike on a synapse that exceeded its lifespan, so there's no need to delete related spikes.
+    // Synapses' indices change though, so spikes need to update their rereferences.
+    for (spikes_count_t i = 0; i < column->spikes_count; i++) {
+        spike* current_spike = &(column->spikes[i]);
+
+        // Check if the current spike references any of the moved synapses.
+        for (synapses_count_t j = 0; j < tmp_synapses_count; j++) {
+            if (current_spike->synapse == old_indices[j]) {
+                // Update the old index with the new one.
+                current_spike->synapse = j;
+            }
+        }
+    }
+
+    free(old_indices);
 }
 
 void ccol_syngen(corticolumn* column) {
