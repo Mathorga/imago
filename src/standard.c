@@ -21,6 +21,7 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
     for (uint32_t i = 0; i < column->neurons_count; i++) {
         column->neurons[i].threshold = NEURON_DEFAULT_THRESHOLD;
         column->neurons[i].value = NEURON_STARTING_VALUE;
+        column->neurons[i].activity = 0;
     }
 
     // Initialize synapses with random values.
@@ -141,11 +142,15 @@ void ccol_fire(corticolumn* column) {
         if (current_neuron->value > current_neuron->threshold) {
             // Set neuron value to recovery.
             current_neuron->value = NEURON_RECOVERY_VALUE;
-            current_neuron->inactivity = 0;
-        } else {
-            if (current_neuron->inactivity <= SYNAPSE_LIFESPAN) {
-                current_neuron->inactivity++;
+
+            if (current_neuron->activity < NEURON_ACTIVITY_MAX - NEURON_ACTIVITY_STEP) {
+                current_neuron->activity += NEURON_ACTIVITY_STEP;
             }
+        } else {
+            current_neuron->activity--;
+            // if (current_neuron->activity > 0 && rand() % 1000 > 900) {
+            //     current_neuron->activity--;
+            // }
         }
     }
 }
@@ -177,7 +182,7 @@ void ccol_syndel(corticolumn* column) {
         synapse* current_synapse = &(column->synapses[i]);
 
         neuron* input_neuron = &(column->neurons[current_synapse->input_neuron]);
-        if (input_neuron->inactivity <= SYNAPSE_LIFESPAN) {
+        if (input_neuron->activity > SYNAPSE_DEL_THRESHOLD) {
             // Preserve synapse.
             tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
             old_indices = realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
@@ -217,9 +222,25 @@ void ccol_syndel(corticolumn* column) {
 }
 
 void ccol_syngen(corticolumn* column) {
-    // TODO
+    // Loop through neurons.
+    for (neurons_count_t i = 0; i < column->neurons_count; i++) {
+        neuron* current_neuron = &(column->neurons[i]);
+        if (current_neuron->activity > SYNAPSE_GEN_THRESHOLD) {
+            // Create new synapse.
+            column->synapses = realloc(column->synapses, ++column->synapses_count);
 
+            // Assign a random output neuron, different from the input.
+            neurons_count_t randomOutput;
+            do {
+                randomOutput = rand() % column->neurons_count;
+            } while (randomOutput == i);
 
+            column->synapses[column->synapses_count - 1].input_neuron = i;
+            column->synapses[column->synapses_count - 1].output_neuron = randomOutput;
+            column->synapses[column->synapses_count - 1].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
+            column->synapses[column->synapses_count - 1].value = SYNAPSE_DEFAULT_VALUE;
+        }
+    }
 }
 
 void ccol_evolve(corticolumn* column) {

@@ -164,7 +164,8 @@ int main(int argc, char **argv) {
         window.clear(sf::Color(31, 31, 31, 255));
 
         if (counter % 10 == 0){// && feeding) {
-            ccol_evolve(&column);
+            ccol_syngen(&column);
+            // ccol_evolve(&column);
         }
 
         // Feed the column and tick it.
@@ -210,6 +211,7 @@ int main(int argc, char **argv) {
         infoText.setPosition(20.0f, 20.0f);
         infoText.setString(
             "Spikes count: " + std::to_string(column.spikes_count) + "\n" +
+            "Synapses count: " + std::to_string(column.synapses_count) + "\n" +
             "Feeding: " + (feeding ? "true" : "false") + "\n" +
             "Iterations: " + std::to_string(counter) + "\n");
         infoText.setFont(font);

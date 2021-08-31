@@ -17,14 +17,16 @@ Copyright (C) 2021 Luka Micheletti
 #define NEURON_DECAY_RATE 1
 #define NEURON_RECOVERY_VALUE -0x77
 #define NEURON_LIFESPAN 0x1111u
-#define NEURON_INACTIVITY_MAX 0xFFFFu
+#define NEURON_ACTIVITY_MAX 0xFFFFu
+#define NEURON_ACTIVITY_STEP 0x0022u
 
 // Synapse values.
 #define SYNAPSE_DEFAULT_VALUE 0x22
 #define SYNAPSE_MIN_PROPAGATION_TIME 0x11u
 #define SYNAPSE_DEFAULT_PROPAGATION_TIME 0x32u
 #define SYNAPSE_STARTING_PROGRESS 0x00u
-#define SYNAPSE_LIFESPAN 0x00FFu
+#define SYNAPSE_DEL_THRESHOLD 0x00FFu
+#define SYNAPSE_GEN_THRESHOLD 0x6600u
 
 // Spike values.
 #define SPIKE_DELIVERED -1
@@ -37,7 +39,8 @@ extern "C" {
 // Neuron data types.
 typedef uint8_t neuron_threshold_t;
 typedef int16_t neuron_value_t;
-typedef uint16_t neuron_inactivity_t;
+// typedef uint16_t neuron_inactivity_t;
+typedef uint16_t neuron_activity_t;
 
 // Synapse data types.
 typedef uint8_t synapse_propagation_time_t;
@@ -59,8 +62,8 @@ typedef struct {
     // Actual value of the neuron. If it goes above threshold, then the neuron fires.
     neuron_value_t value;
 
-    // The number of timesteps since the last firing.
-    neuron_inactivity_t inactivity;
+    // The activity level of the neuron (direct match for the firing rate);
+    neuron_activity_t activity;
 } neuron;
 
 typedef struct {
