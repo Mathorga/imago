@@ -11,6 +11,9 @@ Copyright (C) 2021 Luka Micheletti
 
 #include <stdint.h>
 
+// Column values.
+#define SYNAPSES_COUNT_MAX 0x00000FFFu
+
 // Neuron values.
 #define NEURON_DEFAULT_THRESHOLD 0xCCu
 #define NEURON_STARTING_VALUE 0x00u
@@ -18,7 +21,7 @@ Copyright (C) 2021 Luka Micheletti
 #define NEURON_RECOVERY_VALUE -0x77
 #define NEURON_LIFESPAN 0x1111u
 #define NEURON_ACTIVITY_MAX 0xFFFFu
-#define NEURON_ACTIVITY_STEP 0x0022u
+#define NEURON_ACTIVITY_STEP 0x0033u
 
 // Synapse values.
 #define SYNAPSE_DEFAULT_VALUE 0x22
@@ -26,7 +29,7 @@ Copyright (C) 2021 Luka Micheletti
 #define SYNAPSE_DEFAULT_PROPAGATION_TIME 0x32u
 #define SYNAPSE_STARTING_PROGRESS 0x00u
 #define SYNAPSE_DEL_THRESHOLD 0x00FFu
-#define SYNAPSE_GEN_THRESHOLD 0x6600u
+#define SYNAPSE_GEN_THRESHOLD 0x1100u
 
 // Spike values.
 #define SPIKE_DELIVERED -1
@@ -39,7 +42,6 @@ extern "C" {
 // Neuron data types.
 typedef uint8_t neuron_threshold_t;
 typedef int16_t neuron_value_t;
-// typedef uint16_t neuron_inactivity_t;
 typedef uint16_t neuron_activity_t;
 
 // Synapse data types.

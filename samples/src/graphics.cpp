@@ -26,7 +26,12 @@ void drawNeurons(corticolumn column, sf::RenderWindow* window, sf::VideoMode vid
 
         float neuronValue = ((float) currentNeuron->value) / ((float) currentNeuron->threshold);
 
-        float radius = 5.0f;
+        // float radius = 5.0f;
+        float radius = 5.0f + (5.0f * currentNeuron->activity) / SYNAPSE_GEN_THRESHOLD;
+        // if (radius > 10.0f) {
+        //     radius = 10.0f;
+        // }
+
         neuronSpot.setRadius(radius);
 
         // neuronSpot.setFillColor(sf::Color((sf::Uint8) neuronValue, (sf::Uint8) neuronValue, (sf::Uint8) neuronValue, (sf::Uint8) neuronValue));
@@ -40,6 +45,7 @@ void drawNeurons(corticolumn column, sf::RenderWindow* window, sf::VideoMode vid
 
         // Center the spot.
         neuronSpot.setOrigin(radius, radius);
+
         window->draw(neuronSpot);
     }
 }
@@ -124,8 +130,14 @@ int main(int argc, char **argv) {
     sf::RenderWindow window(desktopMode, "Imago", sf::Style::Fullscreen, settings);
     
     bool feeding = false;
+    bool showInfo = true;
 
     int counter = 0;
+
+    sf::Font font;
+    if (!font.loadFromFile("res/JetBrainsMono.ttf")) {
+        printf("Font not loaded\n");
+    }
 
     // Run the program as long as the window is open.
     while (window.isOpen()) {
@@ -151,6 +163,10 @@ int main(int argc, char **argv) {
                             break;
                         case sf::Keyboard::Space:
                             feeding = !feeding;
+                            break;
+                        case sf::Keyboard::I:
+                            showInfo = !showInfo;
+                            break;
                         default:
                             break;
                     }
@@ -163,12 +179,12 @@ int main(int argc, char **argv) {
         // Clear the window with black color
         window.clear(sf::Color(31, 31, 31, 255));
 
-        if (counter % 10 == 0){// && feeding) {
-            ccol_syngen(&column);
-            // ccol_evolve(&column);
+        if (counter % 10 == 0 && feeding) {
+            ccol_evolve(&column);
         }
 
         // Feed the column and tick it.
+        neurons_count_t inputNeuronsCount = 4;
         uint32_t input_neurons[] = {0, 1, 2, 3};
         if (feeding && randomFloat(0, 1) < 0.4f) {
             ccol_feed(&column, input_neurons, 4, SYNAPSE_DEFAULT_VALUE);
@@ -179,7 +195,7 @@ int main(int argc, char **argv) {
         for (uint32_t i = 0; i < 4; i++) {
             sf::CircleShape neuronCircle;
 
-            float radius = 7.0f;
+            float radius = 10.0f;
             neuronCircle.setRadius(radius);
             neuronCircle.setOutlineThickness(2);
             neuronCircle.setOutlineColor(sf::Color::White);
@@ -202,22 +218,31 @@ int main(int argc, char **argv) {
         // Draw spikes.
         drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
-        // Draw spikes count.
-        sf::Font font;
-        if (!font.loadFromFile("res/JetBrainsMono.ttf")) {
-            printf("Font not loaded\n");
+        if (showInfo) {
+            // Draw info.
+            sf::Text infoText;
+            infoText.setPosition(20.0f, 20.0f);
+            infoText.setString(
+                "Spikes count: " + std::to_string(column.spikes_count) + "\n" +
+                "Synapses count: " + std::to_string(column.synapses_count) + "\n" +
+                "Feeding: " + (feeding ? "true" : "false") + "\n" +
+                "Iterations: " + std::to_string(counter) + "\n");
+            infoText.setFont(font);
+            infoText.setCharacterSize(24);
+            infoText.setFillColor(sf::Color::White);
+            window.draw(infoText);
+
+            // Draw input neurons' contextual infos.
+            for (neurons_count_t i = 0; i < inputNeuronsCount; i++) {
+                sf::Text infoText;
+                infoText.setPosition(xNeuronPositions[i] * desktopMode.width + 6.0f, yNeuronPositions[i] * desktopMode.height + 6.0f);
+                infoText.setString(std::to_string(column.neurons[input_neurons[i]].activity));
+                infoText.setFont(font);
+                infoText.setCharacterSize(10);
+                infoText.setFillColor(sf::Color::White);
+                window.draw(infoText);
+            }
         }
-        sf::Text infoText;
-        infoText.setPosition(20.0f, 20.0f);
-        infoText.setString(
-            "Spikes count: " + std::to_string(column.spikes_count) + "\n" +
-            "Synapses count: " + std::to_string(column.synapses_count) + "\n" +
-            "Feeding: " + (feeding ? "true" : "false") + "\n" +
-            "Iterations: " + std::to_string(counter) + "\n");
-        infoText.setFont(font);
-        infoText.setCharacterSize(24);
-        infoText.setFillColor(sf::Color::White);
-        window.draw(infoText);
 
         // End the current frame.
         window.display();

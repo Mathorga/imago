@@ -82,7 +82,7 @@ void ccol_increment(corticolumn* column) {
     spike* traveling_spikes = (spike*) malloc(traveling_spikes_count * sizeof(spike));
 
     // Loop through spikes.
-    for (uint32_t i = 0; i < column->spikes_count; i++) {
+    for (spikes_count_t i = 0; i < column->spikes_count; i++) {
         if (column->spikes[i].progress == SPIKE_DELIVERED) {
             // Increment target neuron.
             synapse* reference_synapse = &(column->synapses[column->spikes[i].synapse]);
@@ -92,11 +92,7 @@ void ccol_increment(corticolumn* column) {
         } else {
             // Save the spike as traveling.
             traveling_spikes_count++;
-            if (traveling_spikes_count <= 0) {
-                traveling_spikes = (spike*) malloc(traveling_spikes_count * sizeof(spike));
-            } else {
-                traveling_spikes = realloc(traveling_spikes, traveling_spikes_count * sizeof(spike));
-            }
+            traveling_spikes = (spike*) realloc(traveling_spikes, traveling_spikes_count * sizeof(spike));
             traveling_spikes[traveling_spikes_count - 1] = column->spikes[i];
         }
     }
@@ -125,32 +121,31 @@ void ccol_decay(corticolumn* column) {
 
 void ccol_fire(corticolumn* column) {
     // Loop through synapses and fire spikes on those whose input neuron's value exceeds their threshold.
-    for (uint32_t i = 0; i < column->synapses_count; i++) {
+    for (synapses_count_t i = 0; i < column->synapses_count; i++) {
         neuron* input_neuron = &(column->neurons[column->synapses[i].input_neuron]);
         if (input_neuron->value > input_neuron->threshold) {
             // Create a new spike.
             column->spikes_count++;
-            column->spikes = realloc(column->spikes, column->spikes_count * sizeof(spike*));
+            column->spikes = (spike*) realloc(column->spikes, column->spikes_count * sizeof(spike));
 
             column->spikes[column->spikes_count - 1].progress = 0;
             column->spikes[column->spikes_count - 1].synapse = i;
         }
     }
 
-    for (uint32_t i = 0; i < column->neurons_count; i++) {
+    for (neurons_count_t i = 0; i < column->neurons_count; i++) {
         neuron* current_neuron = &(column->neurons[i]);
         if (current_neuron->value > current_neuron->threshold) {
             // Set neuron value to recovery.
             current_neuron->value = NEURON_RECOVERY_VALUE;
 
-            if (current_neuron->activity < NEURON_ACTIVITY_MAX - NEURON_ACTIVITY_STEP) {
+            if (current_neuron->activity < SYNAPSE_GEN_THRESHOLD) {
                 current_neuron->activity += NEURON_ACTIVITY_STEP;
             }
         } else {
-            current_neuron->activity--;
-            // if (current_neuron->activity > 0 && rand() % 1000 > 900) {
-            //     current_neuron->activity--;
-            // }
+            if (current_neuron->activity > 0) {
+                current_neuron->activity--;
+            }
         }
     }
 }
@@ -184,15 +179,15 @@ void ccol_syndel(corticolumn* column) {
         neuron* input_neuron = &(column->neurons[current_synapse->input_neuron]);
         if (input_neuron->activity > SYNAPSE_DEL_THRESHOLD) {
             // Preserve synapse.
-            tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
-            old_indices = realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
+            tmp_synapses = (synapse*) realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
+            old_indices = (synapses_count_t*) realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
             tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
             old_indices[tmp_synapses_count - 1] = i;
         } else {
             if (rand() % 1000 > 1) {
                 // Preserve synapse.
-                tmp_synapses = realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
-                old_indices = realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
+                tmp_synapses = (synapse*) realloc(tmp_synapses, (++tmp_synapses_count) * sizeof(synapse));
+                old_indices = (synapses_count_t*) realloc(old_indices, tmp_synapses_count * sizeof(synapses_count_t));
                 tmp_synapses[tmp_synapses_count - 1] = *current_synapse;
                 old_indices[tmp_synapses_count - 1] = i;
             }
@@ -222,31 +217,35 @@ void ccol_syndel(corticolumn* column) {
 }
 
 void ccol_syngen(corticolumn* column) {
-    // Loop through neurons.
-    for (neurons_count_t i = 0; i < column->neurons_count; i++) {
-        neuron* current_neuron = &(column->neurons[i]);
-        if (current_neuron->activity > SYNAPSE_GEN_THRESHOLD) {
-            // Create new synapse.
-            column->synapses = realloc(column->synapses, ++column->synapses_count);
+    if (column->synapses_count < SYNAPSES_COUNT_MAX) {
+        // Loop through neurons.
+        for (neurons_count_t i = 0; i < column->neurons_count; i++) {
+            neuron* current_neuron = &(column->neurons[i]);
+            if (current_neuron->activity > SYNAPSE_GEN_THRESHOLD &&
+                current_neuron->activity % 32 == 0) {
+                // Create new synapse.
+                column->synapses_count++;
+                column->synapses = (synapse*) realloc(column->synapses, column->synapses_count * sizeof(synapse));
 
-            // Assign a random output neuron, different from the input.
-            neurons_count_t randomOutput;
-            do {
-                randomOutput = rand() % column->neurons_count;
-            } while (randomOutput == i);
+                // Assign a random output neuron, different from the input.
+                neurons_count_t randomOutput;
+                do {
+                    randomOutput = rand() % column->neurons_count;
+                } while (randomOutput == i);
 
-            column->synapses[column->synapses_count - 1].input_neuron = i;
-            column->synapses[column->synapses_count - 1].output_neuron = randomOutput;
-            column->synapses[column->synapses_count - 1].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
-            column->synapses[column->synapses_count - 1].value = SYNAPSE_DEFAULT_VALUE;
+                column->synapses[column->synapses_count - 1].input_neuron = i;
+                column->synapses[column->synapses_count - 1].output_neuron = randomOutput;
+                column->synapses[column->synapses_count - 1].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
+                column->synapses[column->synapses_count - 1].value = SYNAPSE_DEFAULT_VALUE;
+            }
         }
     }
 }
 
 void ccol_evolve(corticolumn* column) {
     // Delete all unused synapses.
-    //ccol_syndel(column);
+    ccol_syndel(column);
 
     // Add synapses to busy neurons.
-    //ccol_syngen(column);
+    ccol_syngen(column);
 }
