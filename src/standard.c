@@ -245,8 +245,8 @@ void ccol_syngen(corticolumn* column) {
 
 void ccol_evolve(corticolumn* column) {
     // Delete all unused synapses.
-    ccol_syndel(column);
+    //ccol_syndel(column);
 
     // Add synapses to busy neurons.
-    ccol_syngen(column);
+    //ccol_syngen(column);
 }
