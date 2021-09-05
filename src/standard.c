@@ -27,16 +27,16 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
     // Initialize synapses with random values.
     for (uint32_t i = 0; i < column->synapses_count; i++) {
         // Assign a random input neuron.
-        int32_t randomInput = rand() % column->neurons_count;
+        int32_t random_input = rand() % column->neurons_count;
 
         // Assign a random output neuron, different from the input.
-        int32_t randomOutput;
+        int32_t random_output;
         do {
-            randomOutput = rand() % column->neurons_count;
-        } while (randomOutput == randomInput);
+            random_output = rand() % column->neurons_count;
+        } while (random_output == random_input);
 
-        column->synapses[i].input_neuron = randomInput;
-        column->synapses[i].output_neuron = randomOutput;
+        column->synapses[i].input_neuron = random_input;
+        column->synapses[i].output_neuron = random_output;
         column->synapses[i].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
         column->synapses[i].value = SYNAPSE_DEFAULT_VALUE;
     }
@@ -222,19 +222,19 @@ void ccol_syngen(corticolumn* column) {
         for (neurons_count_t i = 0; i < column->neurons_count; i++) {
             neuron* current_neuron = &(column->neurons[i]);
             if (current_neuron->activity > SYNAPSE_GEN_THRESHOLD &&
-                current_neuron->activity % 32 == 0) {
+                current_neuron->activity % NEURON_ACTIVITY_STEP == 0) {
                 // Create new synapse.
                 column->synapses_count++;
                 column->synapses = (synapse*) realloc(column->synapses, column->synapses_count * sizeof(synapse));
 
                 // Assign a random output neuron, different from the input.
-                neurons_count_t randomOutput;
+                neurons_count_t random_output;
                 do {
-                    randomOutput = rand() % column->neurons_count;
-                } while (randomOutput == i);
+                    random_output = rand() % column->neurons_count;
+                } while (random_output == i);
 
                 column->synapses[column->synapses_count - 1].input_neuron = i;
-                column->synapses[column->synapses_count - 1].output_neuron = randomOutput;
+                column->synapses[column->synapses_count - 1].output_neuron = random_output;
                 column->synapses[column->synapses_count - 1].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
                 column->synapses[column->synapses_count - 1].value = SYNAPSE_DEFAULT_VALUE;
             }

@@ -133,6 +133,8 @@ int main(int argc, char **argv) {
     bool showInfo = true;
 
     int counter = 0;
+    int evolutionInterval = 10;
+    int renderingInterval = 1;
 
     sf::Font font;
     if (!font.loadFromFile("res/JetBrainsMono.ttf")) {
@@ -176,10 +178,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        // Clear the window with black color
-        window.clear(sf::Color(31, 31, 31, 255));
-
-        if (counter % 10 == 0 && feeding) {
+        if (counter % evolutionInterval == 0 && feeding) {
             ccol_evolve(&column);
         }
 
@@ -191,61 +190,68 @@ int main(int argc, char **argv) {
         }
         ccol_tick(&column);
 
-        // Highlight input neurons.
-        for (uint32_t i = 0; i < 4; i++) {
-            sf::CircleShape neuronCircle;
+        if (counter % renderingInterval == 0) {
+            // Clear the window with black color.
+            window.clear(sf::Color(31, 31, 31, 255));
 
-            float radius = 10.0f;
-            neuronCircle.setRadius(radius);
-            neuronCircle.setOutlineThickness(2);
-            neuronCircle.setOutlineColor(sf::Color::White);
+            // Highlight input neurons.
+            for (uint32_t i = 0; i < 4; i++) {
+                sf::CircleShape neuronCircle;
 
-            neuronCircle.setFillColor(sf::Color::Transparent);
-            
-            neuronCircle.setPosition(xNeuronPositions[i] * desktopMode.width, yNeuronPositions[i] * desktopMode.height);
+                float radius = 10.0f;
+                neuronCircle.setRadius(radius);
+                neuronCircle.setOutlineThickness(2);
+                neuronCircle.setOutlineColor(sf::Color::White);
 
-            // Center the spot.
-            neuronCircle.setOrigin(radius, radius);
-            window.draw(neuronCircle);
-        }
+                neuronCircle.setFillColor(sf::Color::Transparent);
+                
+                neuronCircle.setPosition(xNeuronPositions[i] * desktopMode.width, yNeuronPositions[i] * desktopMode.height);
 
-        // Draw neurons.
-        drawNeurons(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
+                // Center the spot.
+                neuronCircle.setOrigin(radius, radius);
+                window.draw(neuronCircle);
+            }
 
-        // Draw synapses.
-        drawSynapses(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
+            // Draw neurons.
+            drawNeurons(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
-        // Draw spikes.
-        drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
+            // Draw synapses.
+            drawSynapses(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
-        if (showInfo) {
-            // Draw info.
-            sf::Text infoText;
-            infoText.setPosition(20.0f, 20.0f);
-            infoText.setString(
-                "Spikes count: " + std::to_string(column.spikes_count) + "\n" +
-                "Synapses count: " + std::to_string(column.synapses_count) + "\n" +
-                "Feeding: " + (feeding ? "true" : "false") + "\n" +
-                "Iterations: " + std::to_string(counter) + "\n");
-            infoText.setFont(font);
-            infoText.setCharacterSize(24);
-            infoText.setFillColor(sf::Color::White);
-            window.draw(infoText);
+            // Draw spikes.
+            drawSpikes(column, &window, desktopMode, xNeuronPositions, yNeuronPositions);
 
-            // Draw input neurons' contextual infos.
-            for (neurons_count_t i = 0; i < inputNeuronsCount; i++) {
+            if (showInfo) {
+                // Draw info.
                 sf::Text infoText;
-                infoText.setPosition(xNeuronPositions[i] * desktopMode.width + 6.0f, yNeuronPositions[i] * desktopMode.height + 6.0f);
-                infoText.setString(std::to_string(column.neurons[input_neurons[i]].activity));
+                infoText.setPosition(20.0f, 20.0f);
+                infoText.setString(
+                    "Spikes count: " + std::to_string(column.spikes_count) + "\n" +
+                    "Synapses count: " + std::to_string(column.synapses_count) + "\n" +
+                    "Feeding: " + (feeding ? "true" : "false") + "\n" +
+                    "Iterations: " + std::to_string(counter) + "\n");
                 infoText.setFont(font);
-                infoText.setCharacterSize(10);
+                infoText.setCharacterSize(24);
                 infoText.setFillColor(sf::Color::White);
                 window.draw(infoText);
+
+                // Draw input neurons' contextual infos.
+                for (neurons_count_t i = 0; i < inputNeuronsCount; i++) {
+                    sf::Text infoText;
+                    infoText.setPosition(xNeuronPositions[i] * desktopMode.width + 6.0f, yNeuronPositions[i] * desktopMode.height + 6.0f);
+                    infoText.setString(std::to_string(column.neurons[input_neurons[i]].activity));
+                    infoText.setFont(font);
+                    infoText.setCharacterSize(10);
+                    infoText.setFillColor(sf::Color::White);
+                    window.draw(infoText);
+                }
             }
+
+            // End the current frame.
+            window.display();
         }
 
-        // End the current frame.
-        window.display();
+        
     }
 
     return 0;
