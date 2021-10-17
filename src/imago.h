@@ -2,6 +2,6 @@
 #define __IMAGO__
 
 #include "corticolumn.h"
-#include "standard.h"
+#include "imago_std.h"
 
 #endif

@@ -36,10 +36,10 @@ uninstall: clean
 # Builds all library files.
 lib: libimago.so
 
-libimago.a: standard.o
+libimago.a: imago_std.o
 	ar -cvq $(BLD_DIR)/$@ $(patsubst %.o, $(BLD_DIR)/%.o, $^)
 
-libimago.so: standard.o
+libimago.so: imago_std.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/$@
 
 %.o: $(SRC_DIR)/%.c

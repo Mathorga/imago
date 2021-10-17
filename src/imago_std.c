@@ -1,4 +1,4 @@
-#include "standard.h"
+#include "imago_std.h"
 
 void ccol_init(corticolumn* column, uint32_t neurons_count) {
     dccol_init(column, neurons_count, 10);
