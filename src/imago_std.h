@@ -1,13 +1,13 @@
 /*
 *****************************************************************
-imago.h
+imago_std.h
 
 Copyright (C) 2021 Luka Micheletti
 *****************************************************************
 */
 
-#ifndef __STANDARD__
-#define __STANDARD__
+#ifndef __IMAGO_STD__
+#define __IMAGO_STD__
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -20,7 +20,7 @@ Copyright (C) 2021 Luka Micheletti
 extern "C" {
 #endif
 
-// Initialization methods:
+// Initialization functions:
 
 // Initializes the given corticolumn with default values.
 void ccol_init(corticolumn* column, uint32_t neurons_count);
@@ -29,7 +29,7 @@ void ccol_init(corticolumn* column, uint32_t neurons_count);
 void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density);
 
 
-// Execution methods:
+// Execution functions:
 
 // Feeds external spikes to the specified neurons.
 void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value);
@@ -50,7 +50,7 @@ void ccol_fire(corticolumn* column);
 void ccol_tick(corticolumn* column);
 
 
-// Learning methods:
+// Learning functions:
 
 // Deletes all unused synapses.
 void ccol_syndel(corticolumn* column);
