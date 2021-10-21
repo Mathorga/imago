@@ -1,15 +1,17 @@
 #include "imago_cuda.h"
 
-__device__ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
-    if (threadIdx.x >= column->neurons_count) {
+void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
+    if (targets_count > column->neurons_count) {
         // TODO Handle error.
         return;
     }
 
-    column->neurons[target_neurons[threadIdx.x]].value += value;
+    for (uint32_t i = 0; i < targets_count; i++) {
+        column->neurons[target_neurons[i]].value += value;
+    }
 }
 
-__device__ void ccol_propagate(corticolumn* column) {
+__global__ void ccol_propagate(corticolumn* column) {
     // Loop through spikes.
     for (uint32_t i = 0; i < column->spikes_count; i++) {
         // Retrieve current spike.
@@ -27,4 +29,18 @@ __device__ void ccol_propagate(corticolumn* column) {
             current_spike->progress = SPIKE_DELIVERED;
         }
     }
+}
+
+void ccol_tick(corticolumn* column) {
+    // Update synapses.
+    ccol_propagate<<<1, 1>>>(column);
+
+    // Update neurons with spikes data.
+    ccol_increment<<<1, 1>>>(column);
+
+    // Apply decay to all neurons.
+    ccol_decay<<<1, 1>>>(column);
+
+    // Fire neurons.
+    ccol_fire<<<1, 1>>>(column);
 }

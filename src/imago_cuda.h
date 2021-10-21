@@ -23,22 +23,22 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
 // Execution functions:
 
 // Feeds external spikes to the specified neurons.
-__device__ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value);
+void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value);
 
 // Propagates synapse spikes according to their progress.
-__device__ void ccol_propagate(corticolumn* column);
+__global__ void ccol_propagate(corticolumn* column);
 
 // Increments neuron values with spikes from input synapses.
-__device__ void ccol_increment(corticolumn* column);
+__global__ void ccol_increment(corticolumn* column);
 
 // Decrements all neurons values by decay.
-__device__ void ccol_decay(corticolumn* column);
+__global__ void ccol_decay(corticolumn* column);
 
 // Triggers neuron firing if values exceeds threshold.
-__device__ void ccol_fire(corticolumn* column);
+__global__ void ccol_fire(corticolumn* column);
 
 // Performs a full run cycle over the network corticolumn.
-__global__ void ccol_tick(corticolumn* column);
+void ccol_tick(corticolumn* column);
 
 
 // Learning functions:

@@ -1,4 +1,5 @@
 CCOMP = gcc
+NVCOMP = nvcc
 
 STD_CCOMP_FLAGS = -std=c17 -Wall -pedantic -g
 CCOMP_FLAGS = $(STD_CCOMP_FLAGS)
@@ -27,7 +28,6 @@ install: create lib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
-#	sudo $(MKDIR) $(SYSTEM_LIB_DIR)/imago
 
 uninstall: clean
 	sudo $(RM) $(SYSTEM_INCLUDE_DIR)/imago
@@ -39,11 +39,14 @@ lib: libimago.so
 libimago.a: imago_std.o
 	ar -cvq $(BLD_DIR)/$@ $(patsubst %.o, $(BLD_DIR)/%.o, $^)
 
-libimago.so: imago_std.o
+libimago.so: imago_std.o imago_cuda.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/$@
 
 %.o: $(SRC_DIR)/%.c
 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
+
+%.o: $(SRC_DIR)/%.cu
+	$(NVCOMP) --compiler-options '-fPIC' -c $^ -o $(BLD_DIR)/$@
 
 create:
 	$(MKDIR) $(BLD_DIR)
