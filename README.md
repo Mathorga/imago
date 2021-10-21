@@ -11,7 +11,7 @@ Run `make standard` to install the CPU package as a system-wide dynamic library 
 Run `make cuda` to install the CUDA GPU package as a system-wide dynamic library (only works on linux at the moment).<br/>
 Run `make uninstall` to uninstall any previous installation.
 
-WARNING: Every time you `make` the previous installation is overwritten.
+WARNING: Every time you `make` a new package the previous installation is overwritten.
 
 ## How to use
 ### Header files
