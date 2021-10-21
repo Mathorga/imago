@@ -24,16 +24,19 @@ all: create lib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
+	@echo Installation complete!
 
 standard: create stdlib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
+	@echo Installation complete!
 
 cuda: create cudalib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
+	@echo Installation complete!
 
 uninstall: clean
 	sudo $(RM) $(SYSTEM_INCLUDE_DIR)/imago
