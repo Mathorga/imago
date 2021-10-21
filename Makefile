@@ -19,12 +19,18 @@ SYSTEM_LIB_DIR = /usr/lib
 MKDIR = mkdir -p
 RM = rm -rf
 
-all: default
-
-default: create clean test
-
 # Installs the library files (headers and compiled) into the default system lookup folders.
-install: create lib
+all: create lib
+	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
+	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
+	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
+
+standard: create stdlib
+	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
+	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
+	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
+
+cuda: create cudalib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
@@ -33,25 +39,40 @@ uninstall: clean
 	sudo $(RM) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo $(RM) $(SYSTEM_LIB_DIR)/libimago.so
 
+
+
+# Unused static lib.
+static: imago_std.o
+	ar -cvq $(BLD_DIR)/libimago.a $(patsubst %.o, $(BLD_DIR)/%.o, $^)
+
+
 # Builds all library files.
-lib: libimago.so
+stdlib: imago_std.o
+	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
-libimago.a: imago_std.o
-	ar -cvq $(BLD_DIR)/$@ $(patsubst %.o, $(BLD_DIR)/%.o, $^)
+cudalib: imago_cuda.o
+	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
-libimago.so: imago_std.o imago_cuda.o
-	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/$@
+lib: imago_std.o imago_cuda.o
+	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
+
+
+# Builds object files from source.
 %.o: $(SRC_DIR)/%.c
 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
 
 %.o: $(SRC_DIR)/%.cu
 	$(NVCOMP) --compiler-options '-fPIC' -c $^ -o $(BLD_DIR)/$@
 
+
+
+# Creates temporary working directories.
 create:
 	$(MKDIR) $(BLD_DIR)
 	$(MKDIR) $(BIN_DIR)
 
+# Removes temporary working directories.
 clean:
 	$(RM) $(BLD_DIR)/*
 	$(RM) $(BIN_DIR)/*
