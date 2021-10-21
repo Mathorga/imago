@@ -16,6 +16,8 @@ WARNING: Every time you `make` a new package the previous installation is overwr
 ## How to use
 ### Header files
 Once the installation is complete you can include the library by `#include <imago/imago.h>` and directly use every function in the packages you compiled.<br/>
+
+### Linking
 During linking you can specify `-limago` in order to link the compiled functions.
 
 ## TODO
