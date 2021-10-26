@@ -46,6 +46,9 @@ void ccol_decay(corticolumn* column);
 // Triggers neuron firing if values exceeds threshold.
 void ccol_fire(corticolumn* column);
 
+// Relaxes value to neurons that exceeded their threshold.
+void ccol_relax(corticolumn* column);
+
 // Performs a full run cycle over the network corticolumn.
 void ccol_tick(corticolumn* column);
 

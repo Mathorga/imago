@@ -59,7 +59,7 @@ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_c
 
 void ccol_propagate(corticolumn* column) {
     // Loop through spikes.
-    for (uint32_t i = 0; i < column->spikes_count; i++) {
+    for (spikes_count_t i = 0; i < column->spikes_count; i++) {
         // Retrieve current spike.
         spike* current_spike = &(column->spikes[i]);
 
@@ -132,7 +132,9 @@ void ccol_fire(corticolumn* column) {
             column->spikes[column->spikes_count - 1].synapse = i;
         }
     }
+}
 
+void ccol_relax(corticolumn* column) {
     for (neurons_count_t i = 0; i < column->neurons_count; i++) {
         neuron* current_neuron = &(column->neurons[i]);
         if (current_neuron->value > current_neuron->threshold) {
@@ -162,6 +164,9 @@ void ccol_tick(corticolumn* column) {
 
     // Fire neurons.
     ccol_fire(column);
+
+    // Relax neuron values.
+    ccol_relax(column);
 }
 
 void ccol_syndel(corticolumn* column) {
