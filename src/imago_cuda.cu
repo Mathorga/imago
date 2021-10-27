@@ -13,7 +13,7 @@ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_c
 
 __global__ void ccol_propagate(corticolumn* column) {
     // Retrieve current spike.
-    spike* current_spike = &(column->spikes[IDX(blockIdx.x, threadIdx.x, blockDim.x)]);
+    spike* current_spike = &(column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
 
     // Retrieve reference synapse.
     synapse* reference_synapse = &(column->synapses[current_spike->synapse]);
@@ -29,22 +29,22 @@ __global__ void ccol_propagate(corticolumn* column) {
 }
 
 __global__ void ccol_increment(corticolumn* column, spikes_count_t* traveling_spikes_count, spike** traveling_spikes) {
-    if (column->spikes[IDX(blockIdx.x, threadIdx.x, blockDim.x)].progress == SPIKE_DELIVERED) {
+    if (column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].progress == SPIKE_DELIVERED) {
         // Increment target neuron.
-        synapse* reference_synapse = &(column->synapses[column->spikes[IDX(blockIdx.x, threadIdx.x, blockDim.x)].synapse]);
+        synapse* reference_synapse = &(column->synapses[column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].synapse]);
         neuron* target_neuron = &(column->neurons[reference_synapse->output_neuron]);
 
         target_neuron->value += reference_synapse->value;
     } else {
         // Save the spike as traveling.
         (*traveling_spikes_count)++;
-        *(traveling_spikes[(*traveling_spikes_count) - 1]) = column->spikes[IDX(blockIdx.x, threadIdx.x, blockDim.x)];
+        *(traveling_spikes[(*traveling_spikes_count) - 1]) = column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)];
     }
 }
 
 __global__ void ccol_decay(corticolumn* column) {
     // Retrieve current neuron.
-    neuron* current_neuron = &(column->neurons[IDX(blockIdx.x, threadIdx.x, blockDim.x)]);
+    neuron* current_neuron = &(column->neurons[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
 
     // Make sure the neuron value does not go below 0.
     if (current_neuron->value > 0) {
@@ -56,18 +56,18 @@ __global__ void ccol_decay(corticolumn* column) {
 }
 
 __global__ void ccol_fire(corticolumn* column) {
-    neuron* input_neuron = &(column->neurons[column->synapses[IDX(blockIdx.x, threadIdx.x, blockDim.x)].input_neuron]);
+    neuron* input_neuron = &(column->neurons[column->synapses[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].input_neuron]);
     if (input_neuron->value > input_neuron->threshold) {
         // Create a new spike.
         column->spikes_count++;
 
         column->spikes[column->spikes_count - 1].progress = 0;
-        column->spikes[column->spikes_count - 1].synapse = IDX(blockIdx.x, threadIdx.x, blockDim.x);
+        column->spikes[column->spikes_count - 1].synapse = IDX2D(blockIdx.x, threadIdx.x, blockDim.x);
     }
 }
 
 __global__ void ccol_relax(corticolumn* column) {
-    neuron* current_neuron = &(column->neurons[IDX(blockIdx.x, threadIdx.x, blockDim.x)]);
+    neuron* current_neuron = &(column->neurons[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
     if (current_neuron->value > current_neuron->threshold) {
         // Set neuron value to recovery.
         current_neuron->value = NEURON_RECOVERY_VALUE;
