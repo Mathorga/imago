@@ -1,5 +1,51 @@
 #include "imago_cuda.h"
 
+void ccol_init(corticolumn* column, uint32_t neurons_count) {
+    dccol_init(column, neurons_count, 10);
+}
+
+void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density) {
+    // Randomize seed.
+    // Comment this if you need consistent result across multiple runs.
+    // srand(time(NULL));
+
+    // Allocate neurons.
+    column->neurons_count = neurons_count;
+    column->neurons = (neuron*) malloc(column->neurons_count * sizeof(neuron));
+
+    // Allocate synapses.
+    column->synapses_count = synapses_density * neurons_count;
+    column->synapses = (synapse*) malloc(column->synapses_count * sizeof(synapse));
+
+    // Initialize neurons with default values.
+    for (uint32_t i = 0; i < column->neurons_count; i++) {
+        column->neurons[i].threshold = NEURON_DEFAULT_THRESHOLD;
+        column->neurons[i].value = NEURON_STARTING_VALUE;
+        column->neurons[i].activity = 0;
+    }
+
+    // Initialize synapses with random values.
+    for (uint32_t i = 0; i < column->synapses_count; i++) {
+        // Assign a random input neuron.
+        int32_t random_input = rand() % column->neurons_count;
+
+        // Assign a random output neuron, different from the input.
+        int32_t random_output;
+        do {
+            random_output = rand() % column->neurons_count;
+        } while (random_output == random_input);
+
+        column->synapses[i].input_neuron = random_input;
+        column->synapses[i].output_neuron = random_output;
+        column->synapses[i].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
+        column->synapses[i].value = SYNAPSE_DEFAULT_VALUE;
+    }
+
+    // Initialize spikes data.
+    column->spikes_count = 0;
+    column->spikes = (spike*) malloc(0);
+}
+
 void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
     if (targets_count > column->neurons_count) {
         // TODO Handle error.
@@ -83,9 +129,6 @@ __global__ void ccol_relax(corticolumn* column) {
 }
 
 void ccol_tick(corticolumn* column) {
-    // TODO Copy corticolumn to device.
-    // Allocate as much memory as possible, in order not to be forced to realloc.
-
     // Update synapses.
     ccol_propagate<<<1, column->spikes_count>>>(column);
 

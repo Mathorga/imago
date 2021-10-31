@@ -46,18 +46,18 @@ uninstall: clean
 
 
 # Unused static lib.
-static: imago_std.o
+static: imago_std.o utils.o
 	ar -cvq $(BLD_DIR)/libimago.a $(patsubst %.o, $(BLD_DIR)/%.o, $^)
 
 
 # Builds all library files.
-stdlib: imago_std.o
+stdlib: imago_std.o utils.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
-cudalib: imago_cuda.o
+cudalib: imago_cuda.o utils.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
-lib: imago_std.o imago_cuda.o
+lib: imago_std.o imago_cuda.o utils.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
 

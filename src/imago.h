@@ -1,6 +1,7 @@
 #ifndef __IMAGO__
 #define __IMAGO__
 
+#include "utils.h"
 #include "corticolumn.h"
 
 #ifdef CUDA
