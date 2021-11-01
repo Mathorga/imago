@@ -1,4 +1,5 @@
 CCOMP = g++
+NVCOMP = nvcc
 
 STD_CCOMP_FLAGS = -std=c++17 -Wall -pedantic -g
 CCOMP_FLAGS = $(STD_CCOMP_FLAGS)
@@ -17,21 +18,33 @@ BIN_DIR = ./bin
 MKDIR = mkdir -p
 RM = rm -rf
 
-all: create clean samples
+all: create clean standard cuda
 
-samples: spikes_count graphics time
+standard: spikes_count graphics time_std
+cuda: time_cuda
 
-spikes_count: spikes_count.o
-	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BIN_DIR)/$@ $(STD_LIBS) $(SPIKES_COUNT_LIBS) $(IMAGO_LIBS)
+spikes_count:
+	$(CCOMP) $(CCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
+	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $@.o) -o $(BIN_DIR)/$@ $(STD_LIBS) $(SPIKES_COUNT_LIBS) $(IMAGO_LIBS)
+	@printf "\nCreated spikes count!\n\n"
 
-graphics: graphics.o
-	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BIN_DIR)/$@ $(STD_LIBS) $(GRAPHICS_LIBS) $(IMAGO_LIBS)
+graphics:
+	$(CCOMP) $(CCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
+	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $@.o) -o $(BIN_DIR)/$@ $(STD_LIBS) $(GRAPHICS_LIBS) $(IMAGO_LIBS)
+	@printf "\nCreated graphics!\n\n"
 
-time: time.o
-	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BIN_DIR)/$@ $(STD_LIBS) $(GRAPHICS_LIBS) $(IMAGO_LIBS)
+time_std:
+	$(CCOMP) $(CCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
+	$(CCOMP) $(CLINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $@.o) -o $(BIN_DIR)/$@ $(STD_LIBS) $(GRAPHICS_LIBS) $(IMAGO_LIBS)
+	@printf "\nCreated standard timer!\n\n"
 
-%.o: $(SRC_DIR)/%.cpp
-	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
+time_cuda:
+	$(NVCOMP) -c $(SRC_DIR)/$@.cu -o $(BLD_DIR)/$@.o
+	$(NVCOMP) $(patsubst %.o, $(BLD_DIR)/%.o, $@.o) -o $(BIN_DIR)/$@ $(STD_LIBS) $(GRAPHICS_LIBS) $(IMAGO_LIBS)
+	@printf "\nCreated cuda timer!\n\n"
+
+# %.o: $(SRC_DIR)/%.cpp
+# 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
 
 create:
 	$(MKDIR) $(BLD_DIR)
