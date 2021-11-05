@@ -20,7 +20,8 @@ Once the installation is complete you can include the library by `#include <imag
 ### Linking
 During linking you can specify `-limago` in order to link the compiled functions.
 
-## [Samples](samples)
+## Samples
+You can find useful information in the [samples](samples) directory.
 
 ## TODO
 Full CUDA support
