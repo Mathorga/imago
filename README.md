@@ -4,6 +4,10 @@
 </p>
 Spiking neural network implementation in pure C (and CUDA)
 
+## Before you compile
+Run the dependencies installation script: install_deps.sh
+This will make sure you are ready to launch the following comands.
+
 ## How to compile
 ### Static library installation
 Run `make` or `make all` to install all packages in a system-wide dynamic library (only works on linux at the moment).<br/>
