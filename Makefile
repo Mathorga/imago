@@ -4,7 +4,7 @@ NVCOMP = nvcc
 STD_CCOMP_FLAGS = -std=c17 -Wall -pedantic -g
 CCOMP_FLAGS = $(STD_CCOMP_FLAGS)
 CLINK_FLAGS =
-SHARED_LINK_FLAGS = $(CLINK_FLAGS) -shared
+SHARED_LINK_FLAGS = $(CLINK_FLAGS) --shared
 
 STD_LIBS = -lrt -lm
 LIBS = $(STD_LIBS)
@@ -55,7 +55,8 @@ stdlib: imago_std.o utils.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
 
 cudalib: imago_cuda.o utils.o
-	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
+	$(NVCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
+#	ar -cvq $(BLD_DIR)/libimago.a $(patsubst %.o, $(BLD_DIR)/%.o, $^)
 
 lib: imago_std.o imago_cuda.o utils.o
 	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so

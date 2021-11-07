@@ -26,15 +26,10 @@ void drawNeurons(corticolumn column, sf::RenderWindow* window, sf::VideoMode vid
 
         float neuronValue = ((float) currentNeuron->value) / ((float) currentNeuron->threshold);
 
-        // float radius = 5.0f;
         float radius = 5.0f + (5.0f * currentNeuron->activity) / SYNAPSE_GEN_THRESHOLD;
-        // if (radius > 10.0f) {
-        //     radius = 10.0f;
-        // }
 
         neuronSpot.setRadius(radius);
 
-        // neuronSpot.setFillColor(sf::Color((sf::Uint8) neuronValue, (sf::Uint8) neuronValue, (sf::Uint8) neuronValue, (sf::Uint8) neuronValue));
         if (currentNeuron->value < 0) {
             neuronSpot.setFillColor(sf::Color::White);
         } else {
@@ -250,9 +245,6 @@ int main(int argc, char **argv) {
             // End the current frame.
             window.display();
         }
-
-        
     }
-
     return 0;
 }
