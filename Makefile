@@ -1,65 +1,70 @@
-CCOMP = gcc
-NVCOMP = nvcc
+CCOMP=gcc
+NVCOMP=nvcc
 
-STD_CCOMP_FLAGS = -std=c17 -Wall -pedantic -g
-CCOMP_FLAGS = $(STD_CCOMP_FLAGS)
-CLINK_FLAGS =
-SHARED_LINK_FLAGS = $(CLINK_FLAGS) --shared
+STD_CCOMP_FLAGS=-std=c17 -Wall -pedantic -g
+CCOMP_FLAGS=$(STD_CCOMP_FLAGS)
+CLINK_FLAGS=-Wall
+NVCOMP_FLAGS=--compiler-options '-fPIC'
+NVLINK_FLAGS=
 
-STD_LIBS = -lrt -lm
-LIBS = $(STD_LIBS)
+STD_LIBS=-lrt -lm
+LIBS=$(STD_LIBS)
 
-SRC_DIR = ./src
-BLD_DIR = ./bld
-BIN_DIR = ./bin
+SRC_DIR=./src
+BLD_DIR=./bld
+BIN_DIR=./bin
 
-SYSTEM_INCLUDE_DIR = /usr/include
-SYSTEM_LIB_DIR = /usr/lib
+SYSTEM_INCLUDE_DIR=/usr/include
+SYSTEM_LIB_DIR=/usr/lib
 
-MKDIR = mkdir -p
-RM = rm -rf
+# Adds BLD_DIR to object parameter names.
+OBJS=$(patsubst %.o,$(BLD_DIR)/%.o,$^)
+
+MKDIR=mkdir -p
+RM=rm -rf
 
 # Installs the library files (headers and compiled) into the default system lookup folders.
 all: create lib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
-	@printf "\nInstallation complete!\n"
+	@printf "\nInstallation complete!\n\n"
 
 standard: create stdlib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
-	@printf "\nInstallation complete!\n"
+	@printf "\nInstallation complete!\n\n"
 
 cuda: create cudalib
 	sudo $(MKDIR) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(SRC_DIR)/*.h $(SYSTEM_INCLUDE_DIR)/imago
 	sudo cp $(BLD_DIR)/libimago.so $(SYSTEM_LIB_DIR)
-	@printf "\nInstallation complete!\n"
+	@printf "\nInstallation complete!\n\n"
 
 uninstall: clean
 	sudo $(RM) $(SYSTEM_INCLUDE_DIR)/imago
 	sudo $(RM) $(SYSTEM_LIB_DIR)/libimago.so
-	@printf "\nSuccessfully uninstalled.\n"
+	sudo $(RM) $(SYSTEM_LIB_DIR)/libimago.a
+	@printf "\nSuccessfully uninstalled.\n\n"
 
 
 
 # Unused static lib.
 static: imago_std.o utils.o
-	ar -cvq $(BLD_DIR)/libimago.a $(patsubst %.o, $(BLD_DIR)/%.o, $^)
+	ar -cvq $(BLD_DIR)/libimago.a $(OBJS)
 
 
 # Builds all library files.
 stdlib: imago_std.o utils.o
-	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
+	$(CCOMP) $(CLINK_FLAGS) -shared $(OBJS) -o $(BLD_DIR)/libimago.so
 
 cudalib: imago_cuda.o utils.o
-	$(NVCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
-#	ar -cvq $(BLD_DIR)/libimago.a $(patsubst %.o, $(BLD_DIR)/%.o, $^)
+	$(NVCOMP) $(NVLINK_FLAGS) -shared $(OBJS) $(STD_LIBS) -o $(BLD_DIR)/libimago.so
+#	g++ -Wall -g -shared -Wl,--export-dynamic $(patsubst %.o, $(BLD_DIR)/%.o, $^) $(STD_LIBS) -o $(BLD_DIR)/libimago.so -lcudart
 
 lib: imago_std.o imago_cuda.o utils.o
-	$(CCOMP) $(SHARED_LINK_FLAGS) $(patsubst %.o, $(BLD_DIR)/%.o, $^) -o $(BLD_DIR)/libimago.so
+	$(CCOMP) $(CLINK_FLAGS) -shared $(OBJS) -o $(BLD_DIR)/libimago.so
 
 
 
@@ -68,7 +73,7 @@ lib: imago_std.o imago_cuda.o utils.o
 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
 
 %.o: $(SRC_DIR)/%.cu
-	$(NVCOMP) --compiler-options '-fPIC' -c $^ -o $(BLD_DIR)/$@
+	$(NVCOMP) $(NVCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
 
 
 

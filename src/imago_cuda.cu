@@ -137,7 +137,7 @@ void ccol_tick(corticolumn* column) {
     cudaMalloc(&traveling_spikes, column->spikes_count * sizeof(spike));
 
     // Update neurons with spikes data.
-    ccol_increment<<<1, column->spikes_count>>>(column, &traveling_spikes_count, traveling_spikes);
+    ccol_increment<<<1, column->spikes_count>>>(column, &traveling_spikes_count, &traveling_spikes);
 
     // Reset spikes.
     cudaFree(column->spikes);

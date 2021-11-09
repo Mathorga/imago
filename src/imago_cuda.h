@@ -30,6 +30,10 @@ Copyright (C) 2021 Luka Micheletti
 // |n| is the size of the second dimension.
 #define IDX3D(i, j, k, m, n) ((m * n * k) + (m * j) + i)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialization functions:
 
 /// Initializes the given corticolumn with default values.
@@ -48,7 +52,7 @@ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_c
 __global__ void ccol_propagate(corticolumn* column);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void ccol_increment(corticolumn* column, spikes_count_t* traveling_spikes_count, spike* traveling_spikes);
+__global__ void ccol_increment(corticolumn* column, spikes_count_t* traveling_spikes_count, spike** traveling_spikes);
 
 /// Decrements all neurons values by decay.
 __global__ void ccol_decay(corticolumn* column);
@@ -75,5 +79,9 @@ __global__ void ccol_syngen(corticolumn* column);
 
 /// Performs a full evolution cycle over the network corticolumn.
 __global__ void ccol_evolve(corticolumn* column);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
