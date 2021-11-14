@@ -30,6 +30,9 @@ Copyright (C) 2021 Luka Micheletti
 // |n| is the size of the second dimension.
 #define IDX3D(i, j, k, m, n) ((m * n * k) + (m * j) + i)
 
+// Maximum number of spikes.
+#define MAX_SPIKES_COUNT 0xFFFFFFu
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,22 +40,22 @@ extern "C" {
 // Initialization functions:
 
 /// Initializes the given corticolumn with default values.
-void ccol_init(corticolumn* column, uint32_t neurons_count);
+void ccol_init(corticolumn* column, neurons_count_t neurons_count);
 
 /// Initializes the given corticolumn specifying the synapses density (synapses per neuron).
-void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density);
+void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t synapses_density);
 
 
 // Execution functions:
 
 /// Feeds external spikes to the specified neurons.
-void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value);
+void ccol_feed(corticolumn* column, neurons_count_t* target_neurons, neurons_count_t targets_count, int8_t value);
 
 /// Propagates synapse spikes according to their progress.
 __global__ void ccol_propagate(corticolumn* column);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void ccol_increment(corticolumn* column, spikes_count_t* traveling_spikes_count, spike** traveling_spikes);
+__global__ void ccol_increment(corticolumn* column);
 
 /// Decrements all neurons values by decay.
 __global__ void ccol_decay(corticolumn* column);
@@ -79,6 +82,7 @@ __global__ void ccol_syngen(corticolumn* column);
 
 /// Performs a full evolution cycle over the network corticolumn.
 __global__ void ccol_evolve(corticolumn* column);
+
 
 #ifdef __cplusplus
 }

@@ -107,6 +107,10 @@ typedef struct {
     spikes_count_t spikes_count;
 
     spike* spikes;
+
+    spikes_count_t traveling_spikes_count;
+
+    spike* traveling_spikes;
 } corticolumn;
 
 #ifdef __cplusplus

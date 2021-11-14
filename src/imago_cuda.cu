@@ -1,49 +1,55 @@
 #include "imago_cuda.h"
+#include "stdio.h"
 
-void ccol_init(corticolumn* column, uint32_t neurons_count) {
+void ccol_init(corticolumn* column, neurons_count_t neurons_count) {
     dccol_init(column, neurons_count, 10);
 }
 
-void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density) {
-    // Randomize seed.
-    // Comment this if you need consistent result across multiple runs.
-    // srand(time(NULL));
+void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t synapses_density) {
+    synapses_count_t synapses_count = neurons_count * synapses_density;
 
     // Allocate neurons.
-    column->neurons_count = neurons_count;
-    column->neurons = (neuron*) malloc(column->neurons_count * sizeof(neuron));
-
-    // Allocate synapses.
-    column->synapses_count = synapses_density * neurons_count;
-    column->synapses = (synapse*) malloc(column->synapses_count * sizeof(synapse));
+    cudaMemcpy(&(column->neurons_count), &neurons_count, sizeof(neurons_count_t), cudaMemcpyHostToDevice);
+    cudaMalloc(&(column->neurons), neurons_count * sizeof(neuron));
+    neuron* tmp_neurons = (neuron*) malloc(neurons_count * sizeof(neuron));
 
     // Initialize neurons with default values.
-    for (uint32_t i = 0; i < column->neurons_count; i++) {
-        column->neurons[i].threshold = NEURON_DEFAULT_THRESHOLD;
-        column->neurons[i].value = NEURON_STARTING_VALUE;
-        column->neurons[i].activity = 0;
+    for (neurons_count_t i = 0; i < neurons_count; i++) {
+        tmp_neurons[i].threshold = NEURON_DEFAULT_THRESHOLD;
+        tmp_neurons[i].value = NEURON_STARTING_VALUE;
+        tmp_neurons[i].activity = 0;
     }
 
+    // Copy neuron values to device.
+    cudaMemcpy(column->neurons, tmp_neurons, neurons_count * sizeof(neuron), cudaMemcpyHostToDevice);
+
+    // Allocate synapses.
+    cudaMemcpy(&(column->synapses_count), &synapses_count, sizeof(synapses_count_t), cudaMemcpyHostToDevice);
+    cudaMalloc(&(column->synapses), synapses_count * sizeof(synapse));
+    synapse* tmp_synapses = (synapse*) malloc(synapses_count * sizeof(synapse));
+
     // Initialize synapses with random values.
-    for (uint32_t i = 0; i < column->synapses_count; i++) {
+    for (synapses_count_t i = 0; i < synapses_count; i++) {
         // Assign a random input neuron.
-        int32_t random_input = rand() % column->neurons_count;
+        int32_t random_input = rand() % neurons_count;
 
         // Assign a random output neuron, different from the input.
         int32_t random_output;
         do {
-            random_output = rand() % column->neurons_count;
+            random_output = rand() % neurons_count;
         } while (random_output == random_input);
 
-        column->synapses[i].input_neuron = random_input;
-        column->synapses[i].output_neuron = random_output;
-        column->synapses[i].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
-        column->synapses[i].value = SYNAPSE_DEFAULT_VALUE;
+        tmp_synapses[i].input_neuron = random_input;
+        tmp_synapses[i].output_neuron = random_output;
+        tmp_synapses[i].propagation_time = SYNAPSE_MIN_PROPAGATION_TIME + (rand() % SYNAPSE_DEFAULT_PROPAGATION_TIME - SYNAPSE_MIN_PROPAGATION_TIME);
+        tmp_synapses[i].value = SYNAPSE_DEFAULT_VALUE;
     }
 
-    // Initialize spikes data.
-    column->spikes_count = 0;
-    column->spikes = (spike*) malloc(0);
+    // Allocate spikes.
+    cudaMemcpy(&(column->spikes_count), 0, sizeof(spikes_count_t), cudaMemcpyHostToDevice);
+    cudaMalloc(&(column->spikes), MAX_SPIKES_COUNT * sizeof(spike));
+    cudaMemcpy(&(column->traveling_spikes_count), 0, sizeof(spikes_count_t), cudaMemcpyHostToDevice);
+    cudaMalloc(&(column->traveling_spikes), MAX_SPIKES_COUNT * sizeof(spike));
 }
 
 void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
@@ -74,7 +80,7 @@ __global__ void ccol_propagate(corticolumn* column) {
     }
 }
 
-__global__ void ccol_increment(corticolumn* column, spikes_count_t* traveling_spikes_count, spike** traveling_spikes) {
+__global__ void ccol_increment(corticolumn* column) {
     if (column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].progress == SPIKE_DELIVERED) {
         // Increment target neuron.
         synapse* reference_synapse = &(column->synapses[column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].synapse]);
@@ -83,8 +89,8 @@ __global__ void ccol_increment(corticolumn* column, spikes_count_t* traveling_sp
         target_neuron->value += reference_synapse->value;
     } else {
         // Save the spike as traveling.
-        (*traveling_spikes_count)++;
-        *(traveling_spikes[(*traveling_spikes_count) - 1]) = column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)];
+        column->traveling_spikes_count++;
+        column->traveling_spikes[column->traveling_spikes_count - 1] = column->spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)];
     }
 }
 
@@ -132,17 +138,8 @@ void ccol_tick(corticolumn* column) {
     // Update synapses.
     ccol_propagate<<<1, column->spikes_count>>>(column);
 
-    uint32_t traveling_spikes_count = 0;
-    spike* traveling_spikes;
-    cudaMalloc(&traveling_spikes, column->spikes_count * sizeof(spike));
-
     // Update neurons with spikes data.
-    ccol_increment<<<1, column->spikes_count>>>(column, &traveling_spikes_count, &traveling_spikes);
-
-    // Reset spikes.
-    cudaFree(column->spikes);
-    column->spikes = traveling_spikes;
-    column->spikes_count = traveling_spikes_count;
+    ccol_increment<<<1, column->spikes_count>>>(column);
 
     // Apply decay to all neurons.
     ccol_decay<<<1, column->neurons_count>>>(column);
