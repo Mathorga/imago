@@ -30,6 +30,14 @@ Copyright (C) 2021 Luka Micheletti
 // |n| is the size of the second dimension.
 #define IDX3D(i, j, k, m, n) ((m * n * k) + (m * j) + i)
 
+#define CUDA_CHECK_ERROR() {                                                                                  \
+            cudaError_t e = cudaGetLastError();                                                             \
+            if (e != cudaSuccess) {                                                                         \
+                printf("Cuda failure %s(%d): %d(%s)\n", __FILE__, __LINE__ - 1, e, cudaGetErrorString(e));  \
+                exit(0);                                                                                    \
+            }                                                                                               \
+        }
+
 // Maximum number of spikes.
 #define MAX_SPIKES_COUNT 0xFFFFFFu
 
@@ -82,6 +90,12 @@ __global__ void ccol_syngen(corticolumn* column);
 
 /// Performs a full evolution cycle over the network corticolumn.
 __global__ void ccol_evolve(corticolumn* column);
+
+
+
+
+// ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
+void ccol_copy_to_host(corticolumn* column);
 
 
 #ifdef __cplusplus

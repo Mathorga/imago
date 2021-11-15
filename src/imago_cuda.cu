@@ -9,7 +9,7 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
     synapses_count_t synapses_count = neurons_count * synapses_density;
 
     // Allocate neurons.
-    cudaMemcpy(&(column->neurons_count), &neurons_count, sizeof(neurons_count_t), cudaMemcpyHostToDevice);
+    column->neurons_count = neurons_count;
     cudaMalloc(&(column->neurons), neurons_count * sizeof(neuron));
     neuron* tmp_neurons = (neuron*) malloc(neurons_count * sizeof(neuron));
 
@@ -22,9 +22,10 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
 
     // Copy neuron values to device.
     cudaMemcpy(column->neurons, tmp_neurons, neurons_count * sizeof(neuron), cudaMemcpyHostToDevice);
+    CUDA_CHECK_ERROR();
 
     // Allocate synapses.
-    cudaMemcpy(&(column->synapses_count), &synapses_count, sizeof(synapses_count_t), cudaMemcpyHostToDevice);
+    column->synapses_count = synapses_count;
     cudaMalloc(&(column->synapses), synapses_count * sizeof(synapse));
     synapse* tmp_synapses = (synapse*) malloc(synapses_count * sizeof(synapse));
 
@@ -45,10 +46,13 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
         tmp_synapses[i].value = SYNAPSE_DEFAULT_VALUE;
     }
 
+    // Copy synapse values to device.
+    cudaMemcpy(column->synapses, tmp_synapses, synapses_count * sizeof(synapse), cudaMemcpyHostToDevice);
+
     // Allocate spikes.
-    cudaMemcpy(&(column->spikes_count), 0, sizeof(spikes_count_t), cudaMemcpyHostToDevice);
+    column->spikes_count = 0;
     cudaMalloc(&(column->spikes), MAX_SPIKES_COUNT * sizeof(spike));
-    cudaMemcpy(&(column->traveling_spikes_count), 0, sizeof(spikes_count_t), cudaMemcpyHostToDevice);
+    column->traveling_spikes_count = 0;
     cudaMalloc(&(column->traveling_spikes), MAX_SPIKES_COUNT * sizeof(spike));
 }
 
@@ -136,17 +140,45 @@ __global__ void ccol_relax(corticolumn* column) {
 
 void ccol_tick(corticolumn* column) {
     // Update synapses.
-    ccol_propagate<<<1, column->spikes_count>>>(column);
+    if (column->spikes_count > 0) {
+        ccol_propagate<<<1, column->spikes_count>>>(column);
+        CUDA_CHECK_ERROR();
+    }
 
     // Update neurons with spikes data.
-    ccol_increment<<<1, column->spikes_count>>>(column);
+    if (column->spikes_count > 0) {
+        ccol_increment<<<1, column->spikes_count>>>(column);
+        CUDA_CHECK_ERROR();
+    }
 
     // Apply decay to all neurons.
-    ccol_decay<<<1, column->neurons_count>>>(column);
+    if (column->neurons_count > 0) {
+        ccol_decay<<<1, column->neurons_count>>>(column);
+        CUDA_CHECK_ERROR();
+    }
 
     // Fire neurons.
-    ccol_fire<<<1, column->synapses_count>>>(column);
+    if (column->synapses_count > 0) {
+        ccol_fire<<<1, column->synapses_count>>>(column);
+        CUDA_CHECK_ERROR();
+    }
 
     // Relax neuron values.
-    ccol_relax<<<1, column->neurons_count>>>(column);
+    if (column->neurons_count > 0) {
+        ccol_relax<<<1, column->neurons_count>>>(column);
+        CUDA_CHECK_ERROR();
+    }
+}
+
+
+// ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
+void ccol_copy_to_host(corticolumn* column) {
+    neuron* neurons = (neuron*) malloc(column->neurons_count * sizeof(neuron));
+    cudaMemcpy(neurons, column->neurons, column->neurons_count * sizeof(neuron), cudaMemcpyDeviceToHost);
+    CUDA_CHECK_ERROR();
+
+    cudaFree(column->neurons);
+    CUDA_CHECK_ERROR();
+
+    column->neurons = neurons;
 }

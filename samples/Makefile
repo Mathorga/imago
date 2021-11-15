@@ -48,10 +48,10 @@ time_cuda:
 	$(NVCOMP) $(NVLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(TIME_CUDA_LIBS) $(IMAGO_LIBS)
 	@printf "\nCreated cuda timer!\n\n"
 
-test_cuda:
-	$(NVCOMP) $(NVCOMP_FLAGS) -c $(SRC_DIR)/$@.cu -o $(BLD_DIR)/$@.o
-	$(NVCOMP) $(NVLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(TIME_CUDA_LIBS) $(IMAGO_LIBS)
-	@printf "\nCreated cuda test!\n\n"
+test:
+	$(CCOMP) $(NVCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
+	$(CCOMP) $(NVLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(IMAGO_LIBS)
+	@printf "\nCreated base test!\n\n"
 
 # %.o: $(SRC_DIR)/%.cpp
 # 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@

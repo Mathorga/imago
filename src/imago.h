@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "corticolumn.h"
 
-#ifdef CUDA
+#ifdef __CUDACC__
 #include "imago_cuda.h"
 #else
 #include "imago_std.h"

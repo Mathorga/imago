@@ -64,6 +64,12 @@ void ccol_syngen(corticolumn* column);
 /// Performs a full evolution cycle over the network corticolumn.
 void ccol_evolve(corticolumn* column);
 
+
+
+
+// ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
+void ccol_copy_to_host(corticolumn* column);
+
 #ifdef __cplusplus
 }
 #endif

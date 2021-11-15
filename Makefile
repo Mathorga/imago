@@ -4,7 +4,7 @@ NVCOMP=nvcc
 STD_CCOMP_FLAGS=-std=c17 -Wall -pedantic -g
 CCOMP_FLAGS=$(STD_CCOMP_FLAGS)
 CLINK_FLAGS=-Wall
-NVCOMP_FLAGS=--compiler-options '-fPIC'
+NVCOMP_FLAGS=--compiler-options '-fPIC' -arch=sm_35
 NVLINK_FLAGS=
 
 STD_LIBS=-lrt -lm
