@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 
     printf("Started\n");
 
-    ccol_init(&column, 100);
+    ccol_init(&column, 10);
 
     printf("Initialized\n");
 

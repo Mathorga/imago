@@ -60,16 +60,16 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
 void ccol_feed(corticolumn* column, neurons_count_t* target_neurons, neurons_count_t targets_count, int8_t value);
 
 /// Propagates synapse spikes according to their progress.
-__global__ void ccol_propagate(corticolumn* column);
+__global__ void ccol_propagate(spike* spikes, synapse* synapses);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void ccol_increment(corticolumn* column);
+__global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count);
 
 /// Decrements all neurons values by decay.
-__global__ void ccol_decay(corticolumn* column);
+__global__ void ccol_decay(neuron* neurons);
 
 /// Triggers neuron firing if values exceeds threshold.
-__global__ void ccol_fire(corticolumn* column);
+__global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
 
 /// Relaxes value to neurons that exceeded their threshold.
 __global__ void ccol_relax(corticolumn* column);
