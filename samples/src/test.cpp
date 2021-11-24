@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 
     ccol_init(&column, 10);
 
-    printf("Initialized\n");
+    printf("Initialized %zu\n", sizeof(neuron));
 
     // ccol_feed(&column, input_neurons, 4, SYNAPSE_DEFAULT_VALUE);
 

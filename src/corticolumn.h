@@ -17,7 +17,7 @@ Copyright (C) 2021 Luka Micheletti
 // Neuron values.
 #define NEURON_DEFAULT_THRESHOLD 0xCCu
 #define NEURON_STARTING_VALUE 0x00u
-#define NEURON_DECAY_RATE 1
+#define NEURON_DECAY_RATE 0x01u
 #define NEURON_RECOVERY_VALUE -0x77
 #define NEURON_LIFESPAN 0x1111u
 #define NEURON_ACTIVITY_MAX 0xFFFFu
