@@ -60,19 +60,28 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
 void ccol_feed(corticolumn* column, neurons_count_t* target_neurons, neurons_count_t targets_count, int8_t value);
 
 /// Propagates synapse spikes according to their progress.
-__global__ void ccol_propagate(spike* spikes, synapse* synapses);
+__global__ void ccol_propagate(spike_progress_t* spike_progresses,
+                               synapses_count_t* spike_synapses,
+                               synapse_propagation_time_t* synapse_propagation_times);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count);
+__global__ void ccol_increment(spike_progress_t* spike_progresses,
+                               synapses_count_t* spike_synapses,
+                               synapse_value_t* synapse_values,
+                               neurons_count_t* synapse_output_neurons,
+                               neuron_value_t* neuron_values,
+                               spike_progress_t* traveling_spike_progresses,
+                               synapses_count_t* traveling_spike_synapses,
+                               spikes_count_t* traveling_spikes_count);
 
 /// Decrements all neurons values by decay.
-__global__ void ccol_decay(neuron* neurons);
+__global__ void ccol_decay(neuron_value_t* neuron_values);
 
 /// Triggers neuron firing if values exceeds threshold.
-__global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
+// __global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
 
 /// Relaxes value to neurons that exceeded their threshold.
-__global__ void ccol_relax(corticolumn* column);
+// __global__ void ccol_relax(corticolumn* column);
 
 /// Performs a full run cycle over the network corticolumn.
 /// \param column The corticolumn on which to perform the processing operations.

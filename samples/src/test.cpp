@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 
     ccol_init(&column, 10);
 
-    printf("Initialized %zu\n", sizeof(neuron));
+    printf("Initialized\n");
 
     // ccol_feed(&column, input_neurons, 4, SYNAPSE_DEFAULT_VALUE);
 
@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     
     printf("Ticked\n");
 
-    ccol_copy_to_host(&column);
+    // ccol_copy_to_host(&column);
     
-    printf("Copied back %d\n", column.neurons[15].threshold);
+    // printf("Copied back %d\n", column.neurons[15].threshold);
 }
