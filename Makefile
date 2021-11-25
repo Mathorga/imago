@@ -5,9 +5,10 @@ STD_CCOMP_FLAGS=-std=c17 -Wall -pedantic -g
 CCOMP_FLAGS=$(STD_CCOMP_FLAGS)
 CLINK_FLAGS=-Wall
 NVCOMP_FLAGS=--compiler-options '-fPIC' -arch=sm_35 -G
-NVLINK_FLAGS=
+NVLINK_FLAGS=-arch=sm_35
 
 STD_LIBS=-lrt -lm
+CUDA_STD_LIBS=-lcudart
 LIBS=$(STD_LIBS)
 
 SRC_DIR=./src
@@ -60,7 +61,7 @@ stdlib: imago_std.o utils.o
 	$(CCOMP) $(CLINK_FLAGS) -shared $(OBJS) -o $(BLD_DIR)/libimago.so
 
 cudalib: imago_cuda.o utils.o
-	$(NVCOMP) $(NVLINK_FLAGS) -shared $(OBJS) $(STD_LIBS) -o $(BLD_DIR)/libimago.so
+	$(NVCOMP) $(NVLINK_FLAGS) -shared $(OBJS) $(CUDA_STD_LIBS) -o $(BLD_DIR)/libimago.so
 #	g++ -Wall -g -shared -Wl,--export-dynamic $(patsubst %.o, $(BLD_DIR)/%.o, $^) $(STD_LIBS) -o $(BLD_DIR)/libimago.so -lcudart
 
 lib: imago_std.o imago_cuda.o utils.o
