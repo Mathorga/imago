@@ -163,8 +163,8 @@ __global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spi
     }
 }
 
-__global__ void ccol_relax(corticolumn* column) {
-    neuron* current_neuron = &(column->neurons[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
+__global__ void ccol_relax(neuron* neurons) {
+    neuron* current_neuron = &(neurons[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
     if (current_neuron->value > current_neuron->threshold) {
         // Set neuron value to recovery.
         current_neuron->value = NEURON_RECOVERY_VALUE;
@@ -241,12 +241,12 @@ void ccol_tick(corticolumn* column) {
     printf("fire done\n");
 
     // // Relax neuron values.
-    // if (column->neurons_count > 0) {
-    //     ccol_relax<<<1, column->neurons_count>>>(column);
-    //     CUDA_CHECK_ERROR();
-    // }
+    if (column->neurons_count > 0) {
+        ccol_relax<<<1, column->neurons_count>>>(column->neurons);
+        CUDA_CHECK_ERROR();
+    }
 
-    // printf("relax done\n");
+    printf("relax done\n");
 }
 
 

@@ -72,7 +72,7 @@ __global__ void ccol_decay(neuron* neurons);
 __global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
 
 /// Relaxes value to neurons that exceeded their threshold.
-__global__ void ccol_relax(corticolumn* column);
+__global__ void ccol_relax(neuron* neurons);
 
 /// Performs a full run cycle over the network corticolumn.
 /// \param column The corticolumn on which to perform the processing operations.
