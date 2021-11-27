@@ -76,7 +76,7 @@ void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_c
 
 __global__ void ccol_propagate(spike* spikes, synapse* synapses) {
     // Retrieve current spike.
-    spike* current_spike = &(spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
+    spike* current_spike = &(spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
 
     // Retrieve reference synapse.
     synapse* reference_synapse = &(synapses[current_spike->synapse]);
@@ -94,11 +94,11 @@ __global__ void ccol_propagate(spike* spikes, synapse* synapses) {
 __global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count) {
     extern __shared__ neuron_value_t traveling_spikes_adds[];
 
-    spike* current_spike = &(spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
+    spike* current_spike = &(spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
 
     if (current_spike->progress == SPIKE_DELIVERED) {
         // Increment target neuron.
-        synapse* reference_synapse = &(synapses[spikes[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].synapse]);
+        synapse* reference_synapse = &(synapses[spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)].synapse]);
         neuron* target_neuron = &(neurons[reference_synapse->output_neuron]);
 
         atomicAdd((uint32_t*) &(target_neuron->value), (uint32_t) reference_synapse->value);
@@ -124,7 +124,7 @@ __global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons
 
 __global__ void ccol_decay(neuron* neurons) {
     // Retrieve current neuron.
-    neuron* current_neuron = &(neurons[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
+    neuron* current_neuron = &(neurons[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
 
     // Make sure the neuron value does not go below 0.
     if (current_neuron->value > 0) {
@@ -138,7 +138,7 @@ __global__ void ccol_decay(neuron* neurons) {
 __global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count) {
     extern __shared__ spikes_count_t spikes_adds[];
 
-    neuron* input_neuron = &(neurons[synapses[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)].input_neuron]);
+    neuron* input_neuron = &(neurons[synapses[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)].input_neuron]);
 
     if (input_neuron->value > input_neuron->threshold) {
         // Create a new spike.
@@ -164,7 +164,7 @@ __global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spi
 }
 
 __global__ void ccol_relax(corticolumn* column) {
-    neuron* current_neuron = &(column->neurons[IDX2D(blockIdx.x, threadIdx.x, blockDim.x)]);
+    neuron* current_neuron = &(column->neurons[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
     if (current_neuron->value > current_neuron->threshold) {
         // Set neuron value to recovery.
         current_neuron->value = NEURON_RECOVERY_VALUE;
@@ -216,29 +216,29 @@ void ccol_tick(corticolumn* column) {
         CUDA_CHECK_ERROR();
     }
 
-    printf("decay done\n");
+    printf("decay done %d\n", column->spikes_count);
 
     // Fire neurons.
-    if (column->synapses_count > 0) {
-        // Copy spikes count to device.
-        spikes_count_t* spikes_count;
-        cudaMalloc((void**) &spikes_count, sizeof(spikes_count_t));
-        CUDA_CHECK_ERROR();
-        cudaMemcpy(spikes_count, &(column->spikes_count), sizeof(spikes_count_t), cudaMemcpyHostToDevice);
-        CUDA_CHECK_ERROR();
+    // if (column->synapses_count > 0) {
+    //     // Copy spikes count to device.
+    //     spikes_count_t* spikes_count;
+    //     cudaMalloc((void**) &spikes_count, sizeof(spikes_count_t));
+    //     CUDA_CHECK_ERROR();
+    //     cudaMemcpy(spikes_count, &(column->spikes_count), sizeof(spikes_count_t), cudaMemcpyHostToDevice);
+    //     CUDA_CHECK_ERROR();
 
-        // Launch kernel.
-        ccol_fire<<<1, column->synapses_count>>>(column->neurons, column->spikes, column->synapses, spikes_count);
-        CUDA_CHECK_ERROR();
+    //     // Launch kernel.
+    //     ccol_fire<<<1, column->synapses_count>>>(column->neurons, column->spikes, column->synapses, spikes_count);
+    //     CUDA_CHECK_ERROR();
 
-        // Copy back to host.
-        cudaMemcpy(&(column->spikes_count), spikes_count, sizeof(spikes_count_t), cudaMemcpyDeviceToHost);
-        CUDA_CHECK_ERROR();
-        cudaFree(spikes_count);
-        CUDA_CHECK_ERROR();
-    }
+    //     // Copy back to host.
+    //     cudaMemcpy(&(column->spikes_count), spikes_count, sizeof(spikes_count_t), cudaMemcpyDeviceToHost);
+    //     CUDA_CHECK_ERROR();
+    //     cudaFree(spikes_count);
+    //     CUDA_CHECK_ERROR();
+    // }
 
-    printf("fire done\n");
+    // printf("fire done\n");
 
     // // Relax neuron values.
     // if (column->neurons_count > 0) {
