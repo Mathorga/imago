@@ -1,10 +1,10 @@
 #include "imago_std.h"
 
-void ccol_init(corticolumn* column, uint32_t neurons_count) {
-    dccol_init(column, neurons_count, 10);
+void braph_init(braph* column, uint32_t neurons_count) {
+    dbraph_init(column, neurons_count, 10);
 }
 
-void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_density) {
+void dbraph_init(braph* column, uint32_t neurons_count, uint16_t synapses_density) {
     // Randomize seed.
     // Comment this if you need consistent result across multiple runs.
     // srand(time(NULL));
@@ -46,7 +46,7 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
     column->spikes = (spike*) malloc(0);
 }
 
-void ccol_feed(corticolumn* column, neurons_count_t starting_index, neurons_count_t count, int8_t value) {
+void braph_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, int8_t value) {
     if (count > column->neurons_count) {
         // TODO Handle error.
         return;
@@ -57,7 +57,7 @@ void ccol_feed(corticolumn* column, neurons_count_t starting_index, neurons_coun
     }
 }
 
-void ccol_propagate(corticolumn* column) {
+void braph_propagate(braph* column) {
     // Loop through spikes.
     for (spikes_count_t i = 0; i < column->spikes_count; i++) {
         // Retrieve current spike.
@@ -77,7 +77,7 @@ void ccol_propagate(corticolumn* column) {
     }
 }
 
-void ccol_increment(corticolumn* column) {
+void braph_increment(braph* column) {
     uint32_t traveling_spikes_count = 0;
     spike* traveling_spikes = (spike*) malloc(traveling_spikes_count * sizeof(spike));
 
@@ -103,7 +103,7 @@ void ccol_increment(corticolumn* column) {
     column->spikes_count = traveling_spikes_count;
 }
 
-void ccol_decay(corticolumn* column) {
+void braph_decay(braph* column) {
     // Loop through neurons.
     for (uint32_t i = 0; i < column->neurons_count; i++) {
         // Retrieve current neuron.
@@ -119,7 +119,7 @@ void ccol_decay(corticolumn* column) {
     }
 }
 
-void ccol_fire(corticolumn* column) {
+void braph_fire(braph* column) {
     // Loop through synapses and fire spikes on those whose input neuron's value exceeds their threshold.
     for (synapses_count_t i = 0; i < column->synapses_count; i++) {
         neuron* input_neuron = &(column->neurons[column->synapses[i].input_neuron]);
@@ -134,7 +134,7 @@ void ccol_fire(corticolumn* column) {
     }
 }
 
-void ccol_relax(corticolumn* column) {
+void braph_relax(braph* column) {
     for (neurons_count_t i = 0; i < column->neurons_count; i++) {
         neuron* current_neuron = &(column->neurons[i]);
         if (current_neuron->value > current_neuron->threshold) {
@@ -152,24 +152,24 @@ void ccol_relax(corticolumn* column) {
     }
 }
 
-void ccol_tick(corticolumn* column) {
+void braph_tick(braph* column) {
     // Update synapses.
-    ccol_propagate(column);
+    braph_propagate(column);
 
     // Update neurons with spikes data.
-    ccol_increment(column);
+    braph_increment(column);
 
     // Apply decay to all neurons.
-    ccol_decay(column);
+    braph_decay(column);
 
     // Fire neurons.
-    ccol_fire(column);
+    braph_fire(column);
 
     // Relax neuron values.
-    ccol_relax(column);
+    braph_relax(column);
 }
 
-void ccol_syndel(corticolumn* column) {
+void braph_syndel(braph* column) {
     // Allocate tmp vector for synapses.
     synapses_count_t tmp_synapses_count = 0;
     synapse* tmp_synapses = (synapse*) malloc(tmp_synapses_count * sizeof(synapse));
@@ -221,7 +221,7 @@ void ccol_syndel(corticolumn* column) {
     free(old_indices);
 }
 
-void ccol_syngen(corticolumn* column) {
+void braph_syngen(braph* column) {
     if (column->synapses_count < SYNAPSES_COUNT_MAX) {
         // Loop through neurons.
         for (neurons_count_t i = 0; i < column->neurons_count; i++) {
@@ -247,10 +247,10 @@ void ccol_syngen(corticolumn* column) {
     }
 }
 
-void ccol_evolve(corticolumn* column) {
+void braph_evolve(braph* column) {
     // Delete all unused synapses.
-    ccol_syndel(column);
+    braph_syndel(column);
 
     // Add synapses to busy neurons.
-    ccol_syngen(column);
+    braph_syngen(column);
 }

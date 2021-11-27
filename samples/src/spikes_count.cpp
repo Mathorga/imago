@@ -31,8 +31,8 @@ int main(int argc, char **argv) {
     srand(time(0));
 
     // Create network model.
-    corticolumn column;
-    dccol_init(&column, neuronsCount, synapsesDensity);
+    braph column;
+    dbraph_init(&column, neuronsCount, synapsesDensity);
 
     bool feed = false;
     bool running = true;
@@ -68,9 +68,9 @@ int main(int argc, char **argv) {
         neurons_count_t inputNeuronsCount = 4;
         neurons_count_t startingInputIndex = 0;
         if (feed && randomFloat(0, 1) < 0.4f) {
-            ccol_feed(&column, startingInputIndex, inputNeuronsCount, SYNAPSE_DEFAULT_VALUE);
+            braph_feed(&column, startingInputIndex, inputNeuronsCount, SYNAPSE_DEFAULT_VALUE);
         }
-        ccol_tick(&column);
+        braph_tick(&column);
 
         // Print spikes count.
         printw("Spikes count: %d\nFeeding: %s\n\n", column.spikes_count, (feed ? "true" : "false"));

@@ -1,13 +1,13 @@
 /*
 *****************************************************************
-corticolumn.h
+braph.h
 
 Copyright (C) 2021 Luka Micheletti
 *****************************************************************
 */
 
-#ifndef __CORTICOLUMN__
-#define __CORTICOLUMN__
+#ifndef __BRAPH__
+#define __BRAPH__
 
 #include <stdint.h>
 
@@ -92,16 +92,16 @@ typedef struct {
 
 // Defines the building block of the brain intelligence: the minimum sensory-motor learning model.
 typedef struct {
-    // The number of neuron in the corticolumn (also defines the number of synapses).
+    // The number of neuron in the braph (also defines the number of synapses).
     neurons_count_t neurons_count;
 
-    // Actual neurons in the corticolumn. The size is defined by neuronsNum.
+    // Actual neurons in the braph. The size is defined by neuronsNum.
     neuron* neurons;
 
-    // Amount of synapses in the corticolumn.
+    // Amount of synapses in the braph.
     synapses_count_t synapses_count;
 
-    // Synapses in the corticolumn. This size is defined by synapsesNum.
+    // Synapses in the braph. This size is defined by synapsesNum.
     synapse* synapses;
 
     spikes_count_t spikes_count;
@@ -111,7 +111,7 @@ typedef struct {
     spikes_count_t traveling_spikes_count;
 
     spike* traveling_spikes;
-} corticolumn;
+} braph;
 
 #ifdef __cplusplus
 }

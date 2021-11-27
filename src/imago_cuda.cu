@@ -1,11 +1,11 @@
 #include "imago_cuda.h"
 #include "stdio.h"
 
-void ccol_init(corticolumn* column, neurons_count_t neurons_count) {
+void ccol_init(braph* column, neurons_count_t neurons_count) {
     dccol_init(column, neurons_count, 10);
 }
 
-void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t synapses_density) {
+void dccol_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_density) {
     synapses_count_t synapses_count = neurons_count * synapses_density;
 
     // Allocate neurons.
@@ -63,7 +63,7 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
     CUDA_CHECK_ERROR();
 }
 
-void ccol_feed(corticolumn* column, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value) {
+void ccol_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value) {
     // Copy neurons to host.
     // neuron* tmpNeurons;
     // cudaMemcpy(tmpNeurons, column->neurons[starting_target]);
@@ -183,7 +183,7 @@ __global__ void ccol_relax(neuron* neurons) {
     }
 }
 
-void ccol_tick(corticolumn* column) {
+void ccol_tick(braph* column) {
     // Update synapses.
     if (column->spikes_count > 0) {
         ccol_propagate<<<1, column->spikes_count>>>(column->spikes, column->synapses);
@@ -245,7 +245,7 @@ void ccol_tick(corticolumn* column) {
 
 
 // ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
-void ccol_copy_to_host(corticolumn* column) {
+void ccol_copy_to_host(braph* column) {
     neuron* neurons = (neuron*) malloc(column->neurons_count * sizeof(neuron));
     cudaMemcpy(neurons, column->neurons, column->neurons_count * sizeof(neuron), cudaMemcpyDeviceToHost);
     CUDA_CHECK_ERROR();

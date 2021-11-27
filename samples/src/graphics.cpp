@@ -11,14 +11,14 @@ float randomFloat(float min, float max) {
     return (random * range) + min;
 }
 
-void initPositions(corticolumn column, float* xNeuronPositions, float* yNeuronPositions) {
+void initPositions(braph column, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.neurons_count; i++) {
         xNeuronPositions[i] = randomFloat(0, 1);
         yNeuronPositions[i] = randomFloat(0, 1);
     }
 }
 
-void drawNeurons(corticolumn column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
+void drawNeurons(braph column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.neurons_count; i++) {
         sf::CircleShape neuronSpot;
 
@@ -45,7 +45,7 @@ void drawNeurons(corticolumn column, sf::RenderWindow* window, sf::VideoMode vid
     }
 }
 
-void drawSynapses(corticolumn column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
+void drawSynapses(braph column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.synapses_count; i++) {
         sf::Vertex line[] = {
             sf::Vertex(
@@ -60,7 +60,7 @@ void drawSynapses(corticolumn column, sf::RenderWindow* window, sf::VideoMode vi
     }
 }
 
-void drawSpikes(corticolumn column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
+void drawSpikes(braph column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.spikes_count; i++) {
         sf::CircleShape spikeSpot;
         float radius = 2.0f;
@@ -110,8 +110,8 @@ int main(int argc, char **argv) {
     srand(time(0));
 
     // Create network model.
-    corticolumn column;
-    dccol_init(&column, neuronsCount, synapsesDensity);
+    braph column;
+    dbraph_init(&column, neuronsCount, synapsesDensity);
 
     float* xNeuronPositions = (float*) malloc(column.neurons_count * sizeof(float));
     float* yNeuronPositions = (float*) malloc(column.neurons_count * sizeof(float));
@@ -174,16 +174,16 @@ int main(int argc, char **argv) {
         }
 
         if (counter % evolutionInterval == 0 && feeding) {
-            ccol_evolve(&column);
+            braph_evolve(&column);
         }
 
         // Feed the column and tick it.
         neurons_count_t inputNeuronsCount = 4;
         neurons_count_t startingInputIndex = 0;
         if (feeding && randomFloat(0, 1) < 0.4f) {
-            ccol_feed(&column, startingInputIndex, inputNeuronsCount, SYNAPSE_DEFAULT_VALUE);
+            braph_feed(&column, startingInputIndex, inputNeuronsCount, SYNAPSE_DEFAULT_VALUE);
         }
-        ccol_tick(&column);
+        braph_tick(&column);
 
         if (counter % renderingInterval == 0) {
             // Clear the window with black color.

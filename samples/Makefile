@@ -51,12 +51,7 @@ time_cuda:
 test:
 	$(CCOMP) $(CCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
 	$(CCOMP) $(CLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(IMAGO_LIBS)
-	@printf "\nCreated base test!\n\n"
-
-cuda_test:
-	$(NVCOMP) $(NVCOMP_FLAGS) -c $(SRC_DIR)/$@.cu -o $(BLD_DIR)/$@.o
-	$(NVCOMP) $(NVLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(IMAGO_LIBS)
-	@printf "\nCreated base test!\n\n"
+	@printf "\nCreated test!\n\n"
 
 # %.o: $(SRC_DIR)/%.cpp
 # 	$(CCOMP) $(CCOMP_FLAGS) -c $^ -o $(BLD_DIR)/$@
