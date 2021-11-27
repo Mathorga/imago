@@ -219,26 +219,26 @@ void ccol_tick(corticolumn* column) {
     printf("decay done %d\n", column->spikes_count);
 
     // Fire neurons.
-    // if (column->synapses_count > 0) {
-    //     // Copy spikes count to device.
-    //     spikes_count_t* spikes_count;
-    //     cudaMalloc((void**) &spikes_count, sizeof(spikes_count_t));
-    //     CUDA_CHECK_ERROR();
-    //     cudaMemcpy(spikes_count, &(column->spikes_count), sizeof(spikes_count_t), cudaMemcpyHostToDevice);
-    //     CUDA_CHECK_ERROR();
+    if (column->synapses_count > 0) {
+        // Copy spikes count to device.
+        spikes_count_t* spikes_count;
+        cudaMalloc((void**) &spikes_count, sizeof(spikes_count_t));
+        CUDA_CHECK_ERROR();
+        cudaMemcpy(spikes_count, &(column->spikes_count), sizeof(spikes_count_t), cudaMemcpyHostToDevice);
+        CUDA_CHECK_ERROR();
 
-    //     // Launch kernel.
-    //     ccol_fire<<<1, column->synapses_count>>>(column->neurons, column->spikes, column->synapses, spikes_count);
-    //     CUDA_CHECK_ERROR();
+        // Launch kernel.
+        ccol_fire<<<1, column->synapses_count, column->synapses_count * sizeof(spikes_count_t)>>>(column->neurons, column->spikes, column->synapses, spikes_count);
+        CUDA_CHECK_ERROR();
 
-    //     // Copy back to host.
-    //     cudaMemcpy(&(column->spikes_count), spikes_count, sizeof(spikes_count_t), cudaMemcpyDeviceToHost);
-    //     CUDA_CHECK_ERROR();
-    //     cudaFree(spikes_count);
-    //     CUDA_CHECK_ERROR();
-    // }
+        // Copy back to host.
+        cudaMemcpy(&(column->spikes_count), spikes_count, sizeof(spikes_count_t), cudaMemcpyDeviceToHost);
+        CUDA_CHECK_ERROR();
+        cudaFree(spikes_count);
+        CUDA_CHECK_ERROR();
+    }
 
-    // printf("fire done\n");
+    printf("fire done\n");
 
     // // Relax neuron values.
     // if (column->neurons_count > 0) {

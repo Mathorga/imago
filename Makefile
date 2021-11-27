@@ -4,8 +4,15 @@ NVCOMP=nvcc
 STD_CCOMP_FLAGS=-std=c17 -Wall -pedantic -g
 CCOMP_FLAGS=$(STD_CCOMP_FLAGS)
 CLINK_FLAGS=-Wall
-NVCOMP_FLAGS=--compiler-options '-fPIC' -arch=sm_35 -G
-NVLINK_FLAGS=-arch=sm_35
+
+ifdef CUDA_ARCH
+CUDA_ARCH_FLAG=-arch=$(CUDA_ARCH)
+else
+CUDA_ARCH_FLAG=
+endif
+
+NVCOMP_FLAGS=--compiler-options '-fPIC' -G $(CUDA_ARCH_FLAG)
+NVLINK_FLAGS=$(CUDA_ARCH_FLAG)
 
 STD_LIBS=-lrt -lm
 CUDA_STD_LIBS=-lcudart

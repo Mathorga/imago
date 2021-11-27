@@ -11,8 +11,18 @@ This will make sure you are ready to launch the following comands.
 ## How to compile
 ### Static library installation
 Run `make` or `make all` to install all packages in a system-wide dynamic library (only works on linux at the moment).<br/>
+
+#### Standard
 Run `make standard` to install the CPU package as a system-wide dynamic library (only works on linux at the moment).<br/>
+
+#### CUDA
 Run `make cuda` to install the CUDA GPU package as a system-wide dynamic library (only works on linux at the moment).<br/>
+You can specify your specific card's compute architecture by setting the CUDA_ARCH variable at compilation time:<br/>
+e.g. `make cuda CUDA_ARCH=sm_35` if your card's compute capability is 3.5. This is useful when dealing with old GPUs that don't support the latest compilation strategies.<br/>
+
+If you're having trouble running your program give this a shot.
+
+#### Uninstall
 Run `make uninstall` to uninstall any previous installation.
 
 WARNING: Every time you `make` a new package the previous installation is overwritten.
