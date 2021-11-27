@@ -16,7 +16,8 @@ Run `make standard` to install the CPU package as a system-wide dynamic library.
 
 ### CUDA
 Run `make cuda` to install the CUDA GPU package as a system-wide dynamic library.<br/>
-You can specify your card's compute architecture by setting the CUDA_ARCH variable at compilation time. e.g. `make cuda CUDA_ARCH=sm_35` if your card's compute capability is 3.5. This is useful when dealing with old GPUs that don't support the latest compilation strategies.<br/>
+You can specify your card's compute architecture by setting the CUDA_ARCH variable at compilation time.<br/>
+e.g. `make cuda CUDA_ARCH=sm_35` if your card's compute capability is 3.5. This is useful when dealing with old GPUs that don't support the latest compilation strategies.<br/>
 
 If you're having trouble running your program give this a shot.
 
