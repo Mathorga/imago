@@ -19,5 +19,5 @@ int main(int argc, char **argv) {
 
     ccol_copy_to_host(&column);
     
-    printf("Copied back %d\n", column.neurons[15].threshold);
+    printf("Copied back %d\n", column.neurons[4].threshold);
 }

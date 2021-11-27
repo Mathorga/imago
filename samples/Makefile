@@ -4,8 +4,8 @@ NVCOMP=nvcc
 STD_CCOMP_FLAGS=-std=c++17 -Wall -pedantic -g
 CCOMP_FLAGS=$(STD_CCOMP_FLAGS)
 CLINK_FLAGS=-Wall
-NVCOMP_FLAGS=
-NVLINK_FLAGS=
+NVCOMP_FLAGS=-arch=sm_35 -G
+NVLINK_FLAGS=-arch=sm_35
 
 STD_LIBS=-lrt -lm
 GRAPHICS_LIBS=-lsfml-graphics -lsfml-window -lsfml-system
@@ -49,8 +49,13 @@ time_cuda:
 	@printf "\nCreated cuda timer!\n\n"
 
 test:
-	$(CCOMP) $(NVCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
-	$(CCOMP) $(NVLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(IMAGO_LIBS)
+	$(CCOMP) $(CCOMP_FLAGS) -c $(SRC_DIR)/$@.cpp -o $(BLD_DIR)/$@.o
+	$(CCOMP) $(CLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(IMAGO_LIBS)
+	@printf "\nCreated base test!\n\n"
+
+cuda_test:
+	$(NVCOMP) $(NVCOMP_FLAGS) -c $(SRC_DIR)/$@.cu -o $(BLD_DIR)/$@.o
+	$(NVCOMP) $(NVLINK_FLAGS) $(OBJS) -o $(BIN_DIR)/$@ $(STD_LIBS) $(IMAGO_LIBS)
 	@printf "\nCreated base test!\n\n"
 
 # %.o: $(SRC_DIR)/%.cpp
