@@ -63,15 +63,19 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
     CUDA_CHECK_ERROR();
 }
 
-void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
-    if (targets_count > column->neurons_count) {
-        // TODO Handle error.
-        return;
-    }
+void ccol_feed(corticolumn* column, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value) {
+    // Copy neurons to host.
+    // neuron* tmpNeurons;
+    // cudaMemcpy(tmpNeurons, column->neurons[starting_target]);
 
-    for (uint32_t i = 0; i < targets_count; i++) {
-        column->neurons[target_neurons[i]].value += value;
-    }
+    // if (targets_count > column->neurons_count) {
+    //     // TODO Handle error.
+    //     return;
+    // }
+
+    // for (uint32_t i = 0; i < targets_count; i++) {
+    //     column->neurons[target_neurons[i]].value += value;
+    // }
 }
 
 __global__ void ccol_propagate(spike* spikes, synapse* synapses) {
@@ -186,8 +190,6 @@ void ccol_tick(corticolumn* column) {
         CUDA_CHECK_ERROR();
     }
 
-    printf("propagate done\n");
-
     // Update neurons with spikes data.
     if (column->spikes_count > 0) {
         // Copy spikes count to device.
@@ -208,15 +210,11 @@ void ccol_tick(corticolumn* column) {
         CUDA_CHECK_ERROR();
     }
 
-    printf("increment done %d\n", column->traveling_spikes_count);
-
     // Apply decay to all neurons.
     if (column->neurons_count > 0) {
         ccol_decay<<<1, column->neurons_count>>>(column->neurons);
         CUDA_CHECK_ERROR();
     }
-
-    printf("decay done %d\n", column->spikes_count);
 
     // Fire neurons.
     if (column->synapses_count > 0) {
@@ -238,15 +236,11 @@ void ccol_tick(corticolumn* column) {
         CUDA_CHECK_ERROR();
     }
 
-    printf("fire done\n");
-
     // // Relax neuron values.
     if (column->neurons_count > 0) {
         ccol_relax<<<1, column->neurons_count>>>(column->neurons);
         CUDA_CHECK_ERROR();
     }
-
-    printf("relax done\n");
 }
 
 

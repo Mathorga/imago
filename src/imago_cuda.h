@@ -57,7 +57,7 @@ void dccol_init(corticolumn* column, neurons_count_t neurons_count, uint16_t syn
 // Execution functions:
 
 /// Feeds external spikes to the specified neurons.
-void ccol_feed(corticolumn* column, neurons_count_t* target_neurons, neurons_count_t targets_count, int8_t value);
+void ccol_feed(corticolumn* column, neurons_count_t starting_index, neurons_count_t count, int8_t value);
 
 /// Propagates synapse spikes according to their progress.
 __global__ void ccol_propagate(spike* spikes, synapse* synapses);

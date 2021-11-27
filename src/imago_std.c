@@ -46,14 +46,14 @@ void dccol_init(corticolumn* column, uint32_t neurons_count, uint16_t synapses_d
     column->spikes = (spike*) malloc(0);
 }
 
-void ccol_feed(corticolumn* column, uint32_t* target_neurons, uint32_t targets_count, int8_t value) {
-    if (targets_count > column->neurons_count) {
+void ccol_feed(corticolumn* column, neurons_count_t starting_index, neurons_count_t count, int8_t value) {
+    if (count > column->neurons_count) {
         // TODO Handle error.
         return;
     }
 
-    for (uint32_t i = 0; i < targets_count; i++) {
-        column->neurons[target_neurons[i]].value += value;
+    for (uint32_t i = 0; i < count; i++) {
+        column->neurons[starting_index + i].value += value;
     }
 }
 

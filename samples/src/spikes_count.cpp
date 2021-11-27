@@ -65,9 +65,10 @@ int main(int argc, char **argv) {
         }
 
         // Feed the column and tick it.
-        uint32_t input_neurons[] = {0, 1, 2, 3};
+        neurons_count_t inputNeuronsCount = 4;
+        neurons_count_t startingInputIndex = 0;
         if (feed && randomFloat(0, 1) < 0.4f) {
-            ccol_feed(&column, input_neurons, 4, SYNAPSE_DEFAULT_VALUE);
+            ccol_feed(&column, startingInputIndex, inputNeuronsCount, SYNAPSE_DEFAULT_VALUE);
         }
         ccol_tick(&column);
 

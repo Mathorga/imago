@@ -179,9 +179,9 @@ int main(int argc, char **argv) {
 
         // Feed the column and tick it.
         neurons_count_t inputNeuronsCount = 4;
-        uint32_t input_neurons[] = {0, 1, 2, 3};
+        neurons_count_t startingInputIndex = 0;
         if (feeding && randomFloat(0, 1) < 0.4f) {
-            ccol_feed(&column, input_neurons, 4, SYNAPSE_DEFAULT_VALUE);
+            ccol_feed(&column, startingInputIndex, inputNeuronsCount, SYNAPSE_DEFAULT_VALUE);
         }
         ccol_tick(&column);
 
@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
                 for (neurons_count_t i = 0; i < inputNeuronsCount; i++) {
                     sf::Text infoText;
                     infoText.setPosition(xNeuronPositions[i] * desktopMode.width + 6.0f, yNeuronPositions[i] * desktopMode.height + 6.0f);
-                    infoText.setString(std::to_string(column.neurons[input_neurons[i]].activity));
+                    infoText.setString(std::to_string(column.neurons[startingInputIndex + i].activity));
                     infoText.setFont(font);
                     infoText.setCharacterSize(10);
                     infoText.setFillColor(sf::Color::White);
