@@ -2,7 +2,7 @@
 #define __IMAGO__
 
 #include "utils.h"
-#include "corticolumn.h"
+#include "braph.h"
 
 #ifdef __CUDACC__
 #include "imago_cuda.h"

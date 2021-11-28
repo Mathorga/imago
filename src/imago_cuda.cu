@@ -1,11 +1,11 @@
 #include "imago_cuda.h"
 #include "stdio.h"
 
-void ccol_init(braph* column, neurons_count_t neurons_count) {
-    dccol_init(column, neurons_count, 10);
+void braph_init(braph* column, neurons_count_t neurons_count) {
+    dbraph_init(column, neurons_count, 10);
 }
 
-void dccol_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_density) {
+void dbraph_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_density) {
     synapses_count_t synapses_count = neurons_count * synapses_density;
 
     // Allocate neurons.
@@ -63,7 +63,7 @@ void dccol_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_
     CUDA_CHECK_ERROR();
 }
 
-void ccol_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value) {
+void braph_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value) {
     // Copy neurons to host.
     // neuron* tmpNeurons;
     // cudaMemcpy(tmpNeurons, column->neurons[starting_target]);
@@ -78,7 +78,7 @@ void ccol_feed(braph* column, neurons_count_t starting_index, neurons_count_t co
     // }
 }
 
-__global__ void ccol_propagate(spike* spikes, synapse* synapses) {
+__global__ void braph_propagate(spike* spikes, synapse* synapses) {
     // Retrieve current spike.
     spike* current_spike = &(spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
 
@@ -95,7 +95,7 @@ __global__ void ccol_propagate(spike* spikes, synapse* synapses) {
     }
 }
 
-__global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count) {
+__global__ void braph_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count) {
     extern __shared__ neuron_value_t traveling_spikes_adds[];
 
     spike* current_spike = &(spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
@@ -126,7 +126,7 @@ __global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons
     }
 }
 
-__global__ void ccol_decay(neuron* neurons) {
+__global__ void braph_decay(neuron* neurons) {
     // Retrieve current neuron.
     neuron* current_neuron = &(neurons[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
 
@@ -139,7 +139,7 @@ __global__ void ccol_decay(neuron* neurons) {
     }
 }
 
-__global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count) {
+__global__ void braph_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count) {
     extern __shared__ spikes_count_t spikes_adds[];
 
     neuron* input_neuron = &(neurons[synapses[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)].input_neuron]);
@@ -167,7 +167,7 @@ __global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spi
     }
 }
 
-__global__ void ccol_relax(neuron* neurons) {
+__global__ void braph_relax(neuron* neurons) {
     neuron* current_neuron = &(neurons[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
     if (current_neuron->value > current_neuron->threshold) {
         // Set neuron value to recovery.
@@ -183,10 +183,10 @@ __global__ void ccol_relax(neuron* neurons) {
     }
 }
 
-void ccol_tick(braph* column) {
+void braph_tick(braph* column) {
     // Update synapses.
     if (column->spikes_count > 0) {
-        ccol_propagate<<<1, column->spikes_count>>>(column->spikes, column->synapses);
+        braph_propagate<<<1, column->spikes_count>>>(column->spikes, column->synapses);
         CUDA_CHECK_ERROR();
     }
 
@@ -199,8 +199,8 @@ void ccol_tick(braph* column) {
         cudaMemcpy(traveling_spikes_count, &(column->traveling_spikes_count), sizeof(spikes_count_t), cudaMemcpyHostToDevice);
         CUDA_CHECK_ERROR();
 
-        // ccol_increment<<<column->neurons_count, column->spikes_count>>>(column);
-        ccol_increment<<<1, column->spikes_count>>>(column->spikes, column->synapses, column->neurons, column->traveling_spikes, traveling_spikes_count);
+        // braph_increment<<<column->neurons_count, column->spikes_count>>>(column);
+        braph_increment<<<1, column->spikes_count>>>(column->spikes, column->synapses, column->neurons, column->traveling_spikes, traveling_spikes_count);
         CUDA_CHECK_ERROR();
 
         // Copy back to host.
@@ -212,7 +212,7 @@ void ccol_tick(braph* column) {
 
     // Apply decay to all neurons.
     if (column->neurons_count > 0) {
-        ccol_decay<<<1, column->neurons_count>>>(column->neurons);
+        braph_decay<<<1, column->neurons_count>>>(column->neurons);
         CUDA_CHECK_ERROR();
     }
 
@@ -226,7 +226,7 @@ void ccol_tick(braph* column) {
         CUDA_CHECK_ERROR();
 
         // Launch kernel.
-        ccol_fire<<<1, column->synapses_count, column->synapses_count * sizeof(spikes_count_t)>>>(column->neurons, column->spikes, column->synapses, spikes_count);
+        braph_fire<<<1, column->synapses_count, column->synapses_count * sizeof(spikes_count_t)>>>(column->neurons, column->spikes, column->synapses, spikes_count);
         CUDA_CHECK_ERROR();
 
         // Copy back to host.
@@ -238,14 +238,14 @@ void ccol_tick(braph* column) {
 
     // // Relax neuron values.
     if (column->neurons_count > 0) {
-        ccol_relax<<<1, column->neurons_count>>>(column->neurons);
+        braph_relax<<<1, column->neurons_count>>>(column->neurons);
         CUDA_CHECK_ERROR();
     }
 }
 
 
 // ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
-void ccol_copy_to_host(braph* column) {
+void braph_copy_to_host(braph* column) {
     neuron* neurons = (neuron*) malloc(column->neurons_count * sizeof(neuron));
     cudaMemcpy(neurons, column->neurons, column->neurons_count * sizeof(neuron), cudaMemcpyDeviceToHost);
     CUDA_CHECK_ERROR();

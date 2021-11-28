@@ -92,5 +92,5 @@ create:
 
 # Removes temporary working directories.
 clean:
-	$(RM) $(BLD_DIR)/*
-	$(RM) $(BIN_DIR)/*
+	$(RM) $(BLD_DIR)
+	$(RM) $(BIN_DIR)

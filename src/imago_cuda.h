@@ -9,7 +9,7 @@ Copyright (C) 2021 Luka Micheletti
 #ifndef __IMAGO_CUDA__
 #define __IMAGO_CUDA__
 
-#include "corticolumn.h"
+#include "braph.h"
 
 // Translate an id wrapping it to the provided size (pacman effect).
 // [i] is the given index.
@@ -48,55 +48,55 @@ extern "C" {
 // Initialization functions:
 
 /// Initializes the given braph with default values.
-void ccol_init(braph* column, neurons_count_t neurons_count);
+void braph_init(braph* column, neurons_count_t neurons_count);
 
 /// Initializes the given braph specifying the synapses density (synapses per neuron).
-void dccol_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_density);
+void dbraph_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_density);
 
 
 // Execution functions:
 
 /// Feeds external spikes to the specified neurons.
 /// \param column 
-void ccol_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, int8_t value);
+void braph_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, int8_t value);
 
 /// Propagates synapse spikes according to their progress.
-__global__ void ccol_propagate(spike* spikes, synapse* synapses);
+__global__ void braph_propagate(spike* spikes, synapse* synapses);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void ccol_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count);
+__global__ void braph_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count);
 
 /// Decrements all neurons values by decay.
-__global__ void ccol_decay(neuron* neurons);
+__global__ void braph_decay(neuron* neurons);
 
 /// Triggers neuron firing if values exceeds threshold.
-__global__ void ccol_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
+__global__ void braph_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
 
 /// Relaxes value to neurons that exceeded their threshold.
-__global__ void ccol_relax(neuron* neurons);
+__global__ void braph_relax(neuron* neurons);
 
 /// Performs a full run cycle over the network braph.
 /// \param column The braph on which to perform the processing operations.
 /// column must reside in device memory.
-void ccol_tick(braph* column);
+void braph_tick(braph* column);
 
 
 // Learning functions:
 
 /// Deletes all unused synapses.
-__global__ void ccol_syndel(braph* column);
+__global__ void braph_syndel(braph* column);
 
 /// Adds synapses to busy neurons (those that fire frequently).
-__global__ void ccol_syngen(braph* column);
+__global__ void braph_syngen(braph* column);
 
 /// Performs a full evolution cycle over the network braph.
-__global__ void ccol_evolve(braph* column);
+__global__ void braph_evolve(braph* column);
 
 
 
 
 // ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
-void ccol_copy_to_host(braph* column);
+void braph_copy_to_host(braph* column);
 
 
 #ifdef __cplusplus
