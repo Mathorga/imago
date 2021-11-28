@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     srand(time(0));
 
     // Create network model.
-    braph column;
+    braph_t column;
     dbraph_init(&column, neuronsCount, synapsesDensity);
 
     bool feed = false;

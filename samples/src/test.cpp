@@ -2,16 +2,16 @@
 #include <stdio.h>
 
 int main(int argc, char **argv) {
-    braph column;
+    braph_t column;
     // cudaMalloc(&column, sizeof(braph));
 
     printf("Started\n");
 
     braph_init(&column, 10);
 
-    printf("Initialized %zu\n", sizeof(neuron));
+    printf("Initialized %zu\n", sizeof(neuron_t));
 
-    // braph_feed(&column, input_neurons, 4, SYNAPSE_DEFAULT_VALUE);
+    braph_feed(&column, 0, 4, SYNAPSE_DEFAULT_VALUE);
 
     braph_tick(&column);
     

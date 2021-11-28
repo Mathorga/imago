@@ -66,7 +66,7 @@ typedef struct {
 
     // The activity level of the neuron (direct match for the firing rate);
     neuron_activity_t activity;
-} neuron;
+} neuron_t;
 
 typedef struct {
     // Propagation time of spikes along the synapse.
@@ -80,7 +80,7 @@ typedef struct {
 
     // Index of the output neuron.
     neurons_count_t output_neuron;
-} synapse;
+} synapse_t;
 
 typedef struct {
     // Progress of the current spike along the synapse.
@@ -88,30 +88,31 @@ typedef struct {
 
     // Reference synapse.
     synapses_count_t synapse;
-} spike;
+} spike_t;
 
 // Defines the building block of the brain intelligence: the minimum sensory-motor learning model.
+// The name comes from BRAIN GRAPH -> BRAPH
 typedef struct {
     // The number of neuron in the braph (also defines the number of synapses).
     neurons_count_t neurons_count;
 
     // Actual neurons in the braph. The size is defined by neuronsNum.
-    neuron* neurons;
+    neuron_t* neurons;
 
     // Amount of synapses in the braph.
     synapses_count_t synapses_count;
 
     // Synapses in the braph. This size is defined by synapsesNum.
-    synapse* synapses;
+    synapse_t* synapses;
 
     spikes_count_t spikes_count;
 
-    spike* spikes;
+    spike_t* spikes;
 
     spikes_count_t traveling_spikes_count;
 
-    spike* traveling_spikes;
-} braph;
+    spike_t* traveling_spikes;
+} braph_t;
 
 #ifdef __cplusplus
 }

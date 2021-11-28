@@ -5,7 +5,7 @@ int main(int argc, char **argv) {
     int synapsesDensity = 10;
 
     // Create network model.
-    braph column;
+    braph_t column;
     dbraph_init(&column, neuronsCount, synapsesDensity);
 
 

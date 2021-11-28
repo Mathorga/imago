@@ -11,18 +11,18 @@ float randomFloat(float min, float max) {
     return (random * range) + min;
 }
 
-void initPositions(braph column, float* xNeuronPositions, float* yNeuronPositions) {
+void initPositions(braph_t column, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.neurons_count; i++) {
         xNeuronPositions[i] = randomFloat(0, 1);
         yNeuronPositions[i] = randomFloat(0, 1);
     }
 }
 
-void drawNeurons(braph column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
+void drawNeurons(braph_t column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.neurons_count; i++) {
         sf::CircleShape neuronSpot;
 
-        neuron* currentNeuron = &(column.neurons[i]);
+        neuron_t* currentNeuron = &(column.neurons[i]);
 
         float neuronValue = ((float) currentNeuron->value) / ((float) currentNeuron->threshold);
 
@@ -45,7 +45,7 @@ void drawNeurons(braph column, sf::RenderWindow* window, sf::VideoMode videoMode
     }
 }
 
-void drawSynapses(braph column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
+void drawSynapses(braph_t column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.synapses_count; i++) {
         sf::Vertex line[] = {
             sf::Vertex(
@@ -60,14 +60,14 @@ void drawSynapses(braph column, sf::RenderWindow* window, sf::VideoMode videoMod
     }
 }
 
-void drawSpikes(braph column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
+void drawSpikes(braph_t column, sf::RenderWindow* window, sf::VideoMode videoMode, float* xNeuronPositions, float* yNeuronPositions) {
     for (uint32_t i = 0; i < column.spikes_count; i++) {
         sf::CircleShape spikeSpot;
         float radius = 2.0f;
         spikeSpot.setRadius(radius);
         spikeSpot.setFillColor(sf::Color(255, 255, 255, 31));
 
-        synapse* referenceSynapse = &(column.synapses[column.spikes[i].synapse]);
+        synapse_t* referenceSynapse = &(column.synapses[column.spikes[i].synapse]);
         uint32_t startingNeuron = referenceSynapse->input_neuron;
         uint32_t endingNeuron = referenceSynapse->output_neuron;
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     srand(time(0));
 
     // Create network model.
-    braph column;
+    braph_t column;
     dbraph_init(&column, neuronsCount, synapsesDensity);
 
     float* xNeuronPositions = (float*) malloc(column.neurons_count * sizeof(float));

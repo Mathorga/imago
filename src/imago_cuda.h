@@ -30,7 +30,7 @@ Copyright (C) 2021 Luka Micheletti
 // |n| is the size of the second dimension.
 #define IDX3D(i, j, k, m, n) ((m * n * k) + (m * j) + i)
 
-#define CUDA_CHECK_ERROR() {                                                                                  \
+#define CUDA_CHECK_ERROR() {                                                                                \
             cudaError_t e = cudaGetLastError();                                                             \
             if (e != cudaSuccess) {                                                                         \
                 printf("Cuda failure %s(%d): %d(%s)\n", __FILE__, __LINE__ - 1, e, cudaGetErrorString(e));  \
@@ -48,55 +48,55 @@ extern "C" {
 // Initialization functions:
 
 /// Initializes the given braph with default values.
-void braph_init(braph* column, neurons_count_t neurons_count);
+void braph_init(braph_t* braph, neurons_count_t neurons_count);
 
 /// Initializes the given braph specifying the synapses density (synapses per neuron).
-void dbraph_init(braph* column, neurons_count_t neurons_count, uint16_t synapses_density);
+void dbraph_init(braph_t* braph, neurons_count_t neurons_count, uint16_t synapses_density);
 
 
 // Execution functions:
 
 /// Feeds external spikes to the specified neurons.
-/// \param column 
-void braph_feed(braph* column, neurons_count_t starting_index, neurons_count_t count, int8_t value);
+/// \param braph 
+void braph_feed(braph_t* braph, neurons_count_t starting_index, neurons_count_t count, int8_t value);
 
 /// Propagates synapse spikes according to their progress.
-__global__ void braph_propagate(spike* spikes, synapse* synapses);
+__global__ void braph_propagate(spike_t* spikes, synapse_t* synapses);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void braph_increment(spike* spikes, synapse* synapses, neuron* neurons, spike* traveling_spikes, spikes_count_t* traveling_spikes_count);
+__global__ void braph_increment(spike_t* spikes, synapse_t* synapses, neuron_t* neurons, spike_t* traveling_spikes, spikes_count_t* traveling_spikes_count);
 
 /// Decrements all neurons values by decay.
-__global__ void braph_decay(neuron* neurons);
+__global__ void braph_decay(neuron_t* neurons);
 
 /// Triggers neuron firing if values exceeds threshold.
-__global__ void braph_fire(neuron* neurons, spike* spikes, synapse* synapses, spikes_count_t* spikes_count);
+__global__ void braph_fire(neuron_t* neurons, spike_t* spikes, synapse_t* synapses, spikes_count_t* spikes_count);
 
 /// Relaxes value to neurons that exceeded their threshold.
-__global__ void braph_relax(neuron* neurons);
+__global__ void braph_relax(neuron_t* neurons);
 
 /// Performs a full run cycle over the network braph.
-/// \param column The braph on which to perform the processing operations.
-/// column must reside in device memory.
-void braph_tick(braph* column);
+/// \param braph The braph on which to perform the processing operations.
+/// braph must reside in device memory.
+void braph_tick(braph_t* braph);
 
 
 // Learning functions:
 
 /// Deletes all unused synapses.
-__global__ void braph_syndel(braph* column);
+__global__ void braph_syndel(braph_t* braph);
 
 /// Adds synapses to busy neurons (those that fire frequently).
-__global__ void braph_syngen(braph* column);
+__global__ void braph_syngen(braph_t* braph);
 
 /// Performs a full evolution cycle over the network braph.
-__global__ void braph_evolve(braph* column);
+__global__ void braph_evolve(braph_t* braph);
 
 
 
 
 // ONLY FOR DEBUG PURPOSES, REMOVE WHEN NOT NEEDED ANYMORE.
-void braph_copy_to_host(braph* column);
+void braph_copy_to_host(braph_t* braph);
 
 
 #ifdef __cplusplus
