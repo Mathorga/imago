@@ -57,8 +57,7 @@ void dbraph_init(braph_t* braph, neurons_count_t neurons_count, uint16_t synapse
 // Execution functions:
 
 /// Feeds external spikes to the specified neurons.
-/// \param braph 
-void braph_feed(braph_t* braph, neurons_count_t starting_index, neurons_count_t count, int8_t value);
+void braph_feed(braph_t* braph, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value);
 
 /// Propagates synapse spikes according to their progress.
 __global__ void braph_propagate(spike_t* spikes, synapse_t* synapses);
