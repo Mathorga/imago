@@ -1,5 +1,6 @@
 #include "imago_cuda.h"
-#include "stdio.h"
+#include <math.h>
+#include <stdio.h>
 
 void braph_init(braph_t* braph, neurons_count_t neurons_count) {
     dbraph_init(braph, neurons_count, 10);
@@ -65,7 +66,7 @@ void dbraph_init(braph_t* braph, neurons_count_t neurons_count, uint16_t synapse
 
 void braph_feed(braph_t* braph, neurons_count_t starting_index, neurons_count_t count, neuron_value_t value) {
     // Copy neurons to host.
-    neuron_t* tmp_neurons;
+    neuron_t* tmp_neurons = (neuron_t*) malloc(count * sizeof(neuron_t));
     cudaMemcpy(tmp_neurons, braph->neurons + starting_index, count * sizeof(neuron_t), cudaMemcpyDeviceToHost);
 
     if (count > braph->neurons_count) {
@@ -101,17 +102,29 @@ __global__ void braph_propagate(spike_t* spikes, synapse_t* synapses) {
     }
 }
 
-__global__ void braph_increment(spike_t* spikes, synapse_t* synapses, neuron_t* neurons, spike_t* traveling_spikes, spikes_count_t* traveling_spikes_count) {
+__global__ void braph_increment(spike_t* spikes,
+                                synapse_t* synapses,
+                                neuron_t* neurons,
+                                spike_t* traveling_spikes,
+                                spikes_count_t* traveling_spikes_count,
+                                spikes_count_t spikes_count) {
     extern __shared__ neuron_value_t traveling_spikes_adds[];
 
-    spike_t* current_spike = &(spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)]);
+    // Cut exceeding threads.
+    spikes_count_t spike_id = IDX2D(threadIdx.x, blockIdx.x, blockDim.x);
+    if (spike_id >= spikes_count) {
+        return;
+    }
+
+    spike_t* current_spike = &(spikes[spike_id]);
 
     if (current_spike->progress == SPIKE_DELIVERED) {
         // Increment target neuron.
         synapse_t* reference_synapse = &(synapses[spikes[IDX2D(threadIdx.x, blockIdx.x, blockDim.x)].synapse]);
         neuron_t* target_neuron = &(neurons[reference_synapse->output_neuron]);
 
-        atomicAdd((uint32_t*) &(target_neuron->value), (uint32_t) reference_synapse->value);
+        // atomicAdd((uint32_t*) &(target_neuron->value), (uint32_t) reference_synapse->value);
+        target_neuron->value += reference_synapse->value;
         traveling_spikes_adds[threadIdx.x] = 0;
     } else {
         // Save the spike as traveling.
@@ -123,6 +136,7 @@ __global__ void braph_increment(spike_t* spikes, synapse_t* synapses, neuron_t* 
     // Reduce all adds on the first thread of the block.
     if (threadIdx.x == blockIdx.x) {
         for (int i = 0; i < blockDim.x; i++) {
+            // atomicAdd(traveling_spikes_count, traveling_spikes_adds[threadIdx.x]);
             (*traveling_spikes_count) += traveling_spikes_adds[threadIdx.x];
 
             if (traveling_spikes_adds[threadIdx.x]) {
@@ -192,7 +206,11 @@ __global__ void braph_relax(neuron_t* neurons) {
 void braph_tick(braph_t* braph) {
     // Update synapses.
     if (braph->spikes_count > 0) {
-        braph_propagate<<<1, braph->spikes_count>>>(braph->spikes, braph->synapses);
+
+        int blocks_count = ceil((float) braph->spikes_count / 1024);
+        blocks_count = blocks_count <= 0 ? 1 : blocks_count;
+        int threads_count = ceil((float) braph->spikes_count / blocks_count);
+        braph_propagate<<<blocks_count, threads_count>>>(braph->spikes, braph->synapses);
         CUDA_CHECK_ERROR();
     }
 
@@ -205,8 +223,15 @@ void braph_tick(braph_t* braph) {
         cudaMemcpy(traveling_spikes_count, &(braph->traveling_spikes_count), sizeof(spikes_count_t), cudaMemcpyHostToDevice);
         CUDA_CHECK_ERROR();
 
-        // braph_increment<<<braph->neurons_count, braph->spikes_count>>>(braph);
-        braph_increment<<<1, braph->spikes_count>>>(braph->spikes, braph->synapses, braph->neurons, braph->traveling_spikes, traveling_spikes_count);
+        int blocks_count = ceil((float) braph->spikes_count / 1024);
+        blocks_count = blocks_count <= 0 ? 1 : blocks_count;
+        int threads_count = ceil((float) braph->spikes_count / blocks_count);
+        braph_increment<<<blocks_count, threads_count, threads_count * sizeof(neuron_value_t)>>>(braph->spikes,
+                                                                                                       braph->synapses,
+                                                                                                       braph->neurons,
+                                                                                                       braph->traveling_spikes,
+                                                                                                       traveling_spikes_count,
+                                                                                                       braph->spikes_count);
         CUDA_CHECK_ERROR();
 
         // Copy back to host.

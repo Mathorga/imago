@@ -63,7 +63,12 @@ void braph_feed(braph_t* braph, neurons_count_t starting_index, neurons_count_t 
 __global__ void braph_propagate(spike_t* spikes, synapse_t* synapses);
 
 /// Increments neuron values with spikes from input synapses.
-__global__ void braph_increment(spike_t* spikes, synapse_t* synapses, neuron_t* neurons, spike_t* traveling_spikes, spikes_count_t* traveling_spikes_count);
+__global__ void braph_increment(spike_t* spikes,
+                                synapse_t* synapses,
+                                neuron_t* neurons,
+                                spike_t* traveling_spikes,
+                                spikes_count_t* traveling_spikes_count,
+                                spikes_count_t spikes_count);
 
 /// Decrements all neurons values by decay.
 __global__ void braph_decay(neuron_t* neurons);
